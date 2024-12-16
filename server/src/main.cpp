@@ -12,5 +12,7 @@ int main(const int argc, char *argv[]) {
 
     auto server = Server(argv[1]);
 
+    server.run();
+
     exit(EXIT_SUCCESS);
 }
