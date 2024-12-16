@@ -9,6 +9,7 @@
 #include <string>
 #include <queue>
 
+// -= Resources =-
 struct Task {
     int id;
     std::string title;
@@ -34,5 +35,26 @@ struct TaskList {
     std::map<int, std::shared_ptr<Task> > tasks;
     std::set<std::shared_ptr<User> > shared_users;
 };
+
+
+// -= Parser =-
+enum ResourceMethod {
+    // Auth
+    AUTH_LOGIN,
+    // Task
+    T_GET_ALL,
+    T_CREATE,
+    T_DELETE,
+    // Task list
+    TL_GET_ALL,
+    TL_CREATE,
+    TL_JOIN
+};
+
+struct ParserOutput {
+    ResourceMethod resource_method;
+    std::string data;
+};
+
 
 #endif //TYPES_HPP
