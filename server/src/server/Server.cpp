@@ -3,9 +3,12 @@
 
 #include "Server.hpp"
 
+#include <ranges>
+#include <utility>
+
 #include "../types.hpp"
 
-Server::Server(const std::string &port) {
+Server::Server(const std::string &port, std::shared_ptr<Repository> repository): repository_(std::move(repository)) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
         terminate("socket create error");
@@ -50,8 +53,10 @@ void Server::run() {
             if (user_fd == -1)
                 terminate("accept error");
 
-            const auto user = new User{.fd = user_fd};
-            users[user_fd] = user;
+            const auto user = new User{.fd = user_fd, .username = std::to_string(user_fd)};
+            // const auto user = std::make_shared<User>(user_fd, nullptr, nullptr, std::to_string(user_fd));
+            repository_->add_user(std::shared_ptr<User>(user));
+            // users[user_fd] = std::unique_ptr<User>(user);
 
             epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user}};
             epoll_ctl(epoll_fd, EPOLL_CTL_ADD, user_fd, &ee);
@@ -68,9 +73,7 @@ void Server::run() {
         if (cnt < 1) {
             std::printf("Removing %d\n", incoming->fd);
             epoll_ctl(epoll_fd, EPOLL_CTL_DEL, incoming->fd, nullptr);
-            users.erase(incoming->fd);
-            close(incoming->fd);
-            delete incoming;
+            repository_->remove_user(incoming->username);
             continue;
         }
 
@@ -83,10 +86,7 @@ void Server::stop() {
 
 void Server::terminate(const char *message) {
     perror(message);
-    for (const auto [user_fd, user]: users) {
-        delete user;
-        close(user_fd);
-    }
+    users.clear();
     close(epoll_fd);
     shutdown(socket_fd, SHUT_RDWR);
     close(socket_fd);

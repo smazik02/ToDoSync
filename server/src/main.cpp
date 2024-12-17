@@ -10,7 +10,7 @@ int main(const int argc, char *argv[]) {
 
     std::cout << "Hello from server at port " << argv[1] << std::endl;
 
-    auto server = Server(argv[1]);
+    auto server = Server(argv[1], std::make_shared<Repository>());
 
     server.run();
 

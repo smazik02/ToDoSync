@@ -2,6 +2,7 @@
 #define TYPES_HPP
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <queue>
@@ -18,13 +19,17 @@ struct User {
     std::string port;
 
     std::string username; // unique
-    std::queue<Task *> task_notification_queue;
+    std::queue<std::shared_ptr<Task> > task_notification_queue;
+
+    ~User() {
+        close(fd);
+    }
 };
 
 struct TaskList {
     std::string name; // unique
-    std::map<int, Task *> tasks;
-    std::set<User *> shared_users;
+    std::map<int, std::shared_ptr<Task> > tasks;
+    std::set<std::shared_ptr<User> > shared_users;
 };
 
 #endif //TYPES_HPP
