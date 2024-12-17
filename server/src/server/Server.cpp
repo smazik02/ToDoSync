@@ -53,12 +53,10 @@ void Server::run() {
             if (user_fd == -1)
                 terminate("accept error");
 
-            const auto user = new User{.fd = user_fd, .username = std::to_string(user_fd)};
-            // const auto user = std::make_shared<User>(user_fd, nullptr, nullptr, std::to_string(user_fd));
-            repository_->add_user(std::shared_ptr<User>(user));
-            // users[user_fd] = std::unique_ptr<User>(user);
+            const auto user = std::make_shared<User>(user_fd, "", "", std::to_string(user_fd));
+            repository_->add_user(user);
 
-            epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user}};
+            epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user.get()}};
             epoll_ctl(epoll_fd, EPOLL_CTL_ADD, user_fd, &ee);
 
             getnameinfo(reinterpret_cast<sockaddr *>(&user_addr), user_addr_len, user->address.data(), NI_MAXHOST,

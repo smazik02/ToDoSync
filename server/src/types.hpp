@@ -1,6 +1,8 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+#include <sys/socket.h>
+
 #include <map>
 #include <memory>
 #include <set>
@@ -22,6 +24,7 @@ struct User {
     std::queue<std::shared_ptr<Task> > task_notification_queue;
 
     ~User() {
+        shutdown(fd, SHUT_RDWR);
         close(fd);
     }
 };

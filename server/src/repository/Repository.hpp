@@ -15,11 +15,11 @@ public:
 
     void add_user(std::shared_ptr<User> user);
 
-    void erase_users();
-
     void remove_user(const std::string &username);
 
     std::vector<std::shared_ptr<TaskList> > get_all_task_lists();
+
+    std::shared_ptr<TaskList> get_task_list_by_name(const std::string &task_list_name);
 
     std::vector<std::shared_ptr<TaskList> > get_task_list_by_user(const std::string &username);
 

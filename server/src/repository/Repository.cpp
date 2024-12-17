@@ -1,6 +1,5 @@
 #include "Repository.hpp"
 
-#include <algorithm>
 #include <ranges>
 
 std::shared_ptr<User> Repository::get_user_by_username(const std::string &username) {
@@ -15,10 +14,6 @@ void Repository::remove_user(const std::string &username) {
     users.erase(username);
 }
 
-void Repository::erase_users() {
-    users.clear();
-}
-
 std::vector<std::shared_ptr<TaskList> > Repository::get_all_task_lists() {
     std::vector<std::shared_ptr<TaskList> > return_list;
     for (const auto &task_list: task_lists | std::ranges::views::values) {
@@ -27,15 +22,19 @@ std::vector<std::shared_ptr<TaskList> > Repository::get_all_task_lists() {
     return return_list;
 }
 
+std::shared_ptr<TaskList> Repository::get_task_list_by_name(const std::string &task_list_name) {
+    return task_lists[task_list_name];
+}
+
 std::vector<std::shared_ptr<TaskList> > Repository::get_task_list_by_user(const std::string &username) {
     std::vector<std::shared_ptr<TaskList> > return_list;
     for (const auto &task_list: task_lists | std::ranges::views::values) {
-        for (const auto &user: task_list->shared_users) {
-            if (user->username == username) {
-                return_list.push_back(task_list);
-                break;
-            }
-        }
+        const auto matches_username = [username](const auto &user) { return user->username == username; };
+        const auto matching_user_iter = std::ranges::find_if(task_list->shared_users.begin(),
+                                                             task_list->shared_users.end(),
+                                                             matches_username);
+        if (matching_user_iter != task_list->shared_users.end())
+            return_list.push_back(task_list);
     }
     return return_list;
 }
