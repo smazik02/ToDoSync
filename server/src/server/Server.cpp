@@ -3,9 +3,12 @@
 
 #include "Server.hpp"
 
+#include <ranges>
+#include <utility>
+
 #include "../types.hpp"
 
-Server::Server(const std::string &port) {
+Server::Server(const int port): repository_(std::make_shared<Repository>()) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
         terminate("socket create error");
@@ -15,7 +18,7 @@ Server::Server(const std::string &port) {
 
     address = {
         .sin_family = AF_INET,
-        .sin_port = htons(atoi(port.c_str())),
+        .sin_port = htons(port),
         .sin_addr = {.s_addr = INADDR_ANY}
     };
     address_len = sizeof(address);
@@ -35,6 +38,13 @@ Server::Server(const std::string &port) {
     epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket_fd, &events);
 }
 
+Server::~Server() {
+    close(epoll_fd);
+    shutdown(socket_fd, SHUT_RDWR);
+    close(socket_fd);
+}
+
+
 void Server::run() {
     while (true) {
         sockaddr_in user_addr{};
@@ -50,10 +60,10 @@ void Server::run() {
             if (user_fd == -1)
                 terminate("accept error");
 
-            const auto user = new User{.fd = user_fd};
-            users[user_fd] = user;
+            const auto user = std::make_shared<User>(user_fd, "", "", std::to_string(user_fd));
+            repository_->add_user(user);
 
-            epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user}};
+            epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user.get()}};
             epoll_ctl(epoll_fd, EPOLL_CTL_ADD, user_fd, &ee);
 
             getnameinfo(reinterpret_cast<sockaddr *>(&user_addr), user_addr_len, user->address.data(), NI_MAXHOST,
@@ -68,9 +78,7 @@ void Server::run() {
         if (cnt < 1) {
             std::printf("Removing %d\n", incoming->fd);
             epoll_ctl(epoll_fd, EPOLL_CTL_DEL, incoming->fd, nullptr);
-            users.erase(incoming->fd);
-            close(incoming->fd);
-            delete incoming;
+            repository_->remove_user(incoming->username);
             continue;
         }
 
@@ -83,10 +91,6 @@ void Server::stop() {
 
 void Server::terminate(const char *message) {
     perror(message);
-    for (const auto [user_fd, user]: users) {
-        delete user;
-        close(user_fd);
-    }
     close(epoll_fd);
     shutdown(socket_fd, SHUT_RDWR);
     close(socket_fd);

@@ -8,9 +8,11 @@ int main(const int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    const int port = std::stoi(argv[1], nullptr, 10);
+
     std::cout << "Hello from server at port " << argv[1] << std::endl;
 
-    auto server = Server(argv[1]);
+    auto server = Server(port);
 
     server.run();
 
