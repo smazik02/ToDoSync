@@ -8,11 +8,13 @@ int main(const int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    const int port = std::stoi(argv[1], nullptr, 10);
+
     std::cout << "Hello from server at port " << argv[1] << std::endl;
 
     const auto repository = std::make_shared<Repository>();
 
-    auto server = Server(argv[1], repository);
+    auto server = Server(port, repository);
 
     server.run();
 

@@ -8,7 +8,7 @@
 
 #include "../types.hpp"
 
-Server::Server(const std::string &port, std::shared_ptr<Repository> repository): repository_(std::move(repository)) {
+Server::Server(const int port, std::shared_ptr<Repository> repository): repository_(std::move(repository)) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
         terminate("socket create error");
@@ -18,7 +18,7 @@ Server::Server(const std::string &port, std::shared_ptr<Repository> repository):
 
     address = {
         .sin_family = AF_INET,
-        .sin_port = htons(atoi(port.c_str())),
+        .sin_port = htons(port),
         .sin_addr = {.s_addr = INADDR_ANY}
     };
     address_len = sizeof(address);
@@ -37,6 +37,13 @@ Server::Server(const std::string &port, std::shared_ptr<Repository> repository):
     events = {.events = EPOLLIN, .data = {.ptr = server}};
     epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket_fd, &events);
 }
+
+Server::~Server() {
+    close(epoll_fd);
+    shutdown(socket_fd, SHUT_RDWR);
+    close(socket_fd);
+}
+
 
 void Server::run() {
     while (true) {
@@ -84,7 +91,6 @@ void Server::stop() {
 
 void Server::terminate(const char *message) {
     perror(message);
-    users.clear();
     close(epoll_fd);
     shutdown(socket_fd, SHUT_RDWR);
     close(socket_fd);

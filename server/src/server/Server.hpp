@@ -5,14 +5,14 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 
-#include <string>
-
 #include "../types.hpp"
 #include "../repository/Repository.hpp"
 
 class Server {
 public:
-    Server(const std::string &port, std::shared_ptr<Repository> repository);
+    Server(int port, std::shared_ptr<Repository> repository);
+
+    ~Server();
 
     void run();
 
