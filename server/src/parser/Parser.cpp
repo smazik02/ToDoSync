@@ -2,6 +2,18 @@
 
 #include "../types.hpp"
 
+Parser::Parser() {
+    request_method_map["T|GET_ALL"] = T_GET_ALL;
+    request_method_map["T|CREATE"] = T_CREATE;
+    request_method_map["T|DELETE"] = T_DELETE;
+
+    request_method_map["TL|GET_ALL"] = TL_GET_ALL;
+    request_method_map["TL|CREATE"] = TL_CREATE;
+    request_method_map["TL|JOIN"] = TL_JOIN;
+}
+
+Parser::~Parser() = default;
+
 std::vector<std::string> Parser::split(const std::string& s, const std::string& delimiter) {
     size_t pos_start = 0, pos_end, delim_len = delimiter.length();
     std::string token;
@@ -17,24 +29,73 @@ std::vector<std::string> Parser::split(const std::string& s, const std::string& 
     return res;
 }
 
-bool Parser::is_request_valid(const std::string request_data) {
-    return split(request_data, "\n").size() == 2;
+bool Parser::is_request_valid(int size) {
+    return size == 2;
 }
 
-ParserOutput Parser::auth_request(const std::string& data) {
-    /* TODO:
-     *  - request validation
-     *  - splitting two lines
-     *  - get header and make enum
-     *  - get json part and validate it by required keys
-     */
-    if (!is_request_valid(data)) {
+ResourceMethod Parser::determine_method(const std::string& s) {
+    try {
+        ResourceMethod method = request_method_map.at(s);
+        return method;
+    } catch (const std::out_of_range& e) {
         // throw exception
+        throw std::exception();
     }
-    std::string method = data.substr(0, data.find('|'));
 }
 
+nlohmann::json Parser::parse_json(const std::string& s) {
+    try {
+        nlohmann::json parsed_string = nlohmann::json::parse(s);
+        return parsed_string;
+    } catch (const nlohmann::json::parse_error& e) {
+        // error
+        throw std::exception();
+    }
+}
+
+/*
+*   EXPECTED:
+*   AUTH | LOGIN
+*   { "username": "<username>" }
+*/
+ParserOutput Parser::auth_request(const std::string& data) {
+    auto lines = split(data, "\n");
+
+    if (!is_request_valid(lines.size())) {
+        // throw exception
+        throw std::exception();
+    }
+
+    if (lines.at(0) != "AUTH|LOGIN") {
+        // throw exception
+        throw std::exception();
+    }
+
+    ParserOutput output {
+        .resource_method = AUTH_LOGIN,
+        .payload = parse_json(lines.at(1))
+    };
+
+    return output;
+}
+
+/*
+*   EXPECTED:
+*   Method from ResourceMethod
+*   Data in valid JSON
+*/
 ParserOutput Parser::process_request(const std::string& data) {
+    auto lines = split(data, "\n");
 
+    if (!is_request_valid(lines.size())) {
+        // throw exception
+        throw std::exception();
+    }
+
+    ParserOutput output = {
+        .resource_method = determine_method(lines.at(0)),
+        .payload = parse_json(lines.at(1))
+    };
+
+    return output;
 }
-
