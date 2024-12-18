@@ -5,6 +5,7 @@
 #include <set>
 #include <string>
 #include <queue>
+#include "../include/json.hpp"
 
 // -= Resources =-
 struct Task {
@@ -45,8 +46,7 @@ enum ResourceMethod {
 
 struct ParserOutput {
     ResourceMethod resource_method;
-    std::string data;
+    nlohmann::json payload;
 };
-
 
 #endif //TYPES_HPP
