@@ -8,7 +8,7 @@
 
 #include "../types.hpp"
 
-Server::Server(const int port, std::shared_ptr<Repository> repository): repository_(std::move(repository)) {
+Server::Server(const int port): repository_(std::make_shared<Repository>()) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
         terminate("socket create error");

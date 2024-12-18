@@ -12,9 +12,7 @@ int main(const int argc, char *argv[]) {
 
     std::cout << "Hello from server at port " << argv[1] << std::endl;
 
-    const auto repository = std::make_shared<Repository>();
-
-    auto server = Server(port, repository);
+    auto server = Server(port);
 
     server.run();
 

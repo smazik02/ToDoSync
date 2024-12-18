@@ -3,7 +3,7 @@
 #include <ranges>
 
 std::shared_ptr<User> Repository::get_user_by_username(const std::string &username) {
-    return users[username];
+    return users.at(username);
 }
 
 void Repository::add_user(std::shared_ptr<User> user) {
@@ -23,7 +23,7 @@ std::vector<std::shared_ptr<TaskList> > Repository::get_all_task_lists() {
 }
 
 std::shared_ptr<TaskList> Repository::get_task_list_by_name(const std::string &task_list_name) {
-    return task_lists[task_list_name];
+    return task_lists.at(task_list_name);
 }
 
 std::vector<std::shared_ptr<TaskList> > Repository::get_task_list_by_user(const std::string &username) {

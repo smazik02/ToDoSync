@@ -18,7 +18,7 @@ class Server {
     std::map<int, std::unique_ptr<User> > users;
 
 public:
-    Server(int port, std::shared_ptr<Repository> repository);
+    explicit Server(int port);
 
     ~Server();
 
