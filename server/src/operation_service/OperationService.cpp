@@ -23,13 +23,13 @@ ServiceResponse OperationService::service_gateway(const ResourceMethod resource_
             return remove_task(payload);
         }
         case TL_GET_ALL: {
-            break;
+            return get_all_user_task_lists(user->username);
         }
         case TL_CREATE: {
-            break;
+            return create_task_list(payload, user->username);
         }
         case TL_JOIN: {
-            break;
+            return join_task_list(payload, user->username);
         }
     }
 
@@ -102,4 +102,82 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload) con
     repository_->get_task_list_by_name(task_list_name)->tasks.erase(task_id);
 
     return {.message = "success", .notification = std::nullopt};
+}
+
+ServiceResponse OperationService::get_all_user_task_lists(const std::string &username) const {
+    auto lists = repository_->get_task_list_by_user(username);
+
+    nlohmann::json response;
+    response["lists"] = nlohmann::json::array();
+
+    for (const auto &list : lists) {
+        response["lists"].push_back(list->name);
+    }
+
+    return {
+        .message = response.dump(),
+        .notification = std::nullopt
+    };
+}
+
+ServiceResponse OperationService::create_task_list(const nlohmann::json &payload, const std::string &username) const {
+    std::shared_ptr<User> user = repository_->get_user_by_username(username);
+
+    if (!payload.contains("name")) {
+        throw std::exception();
+    }
+
+    if (!payload.at("name").is_string()) {
+        throw std::exception();
+    }
+
+    std::string tl_name = payload.at("name").get<std::string>();
+
+    if (repository_->is_task_list_name_taken(tl_name)) {
+        throw std::exception();
+    }
+
+    auto task_list = std::make_shared<TaskList>(
+        tl_name,
+        std::map<int, std::shared_ptr<Task>>(),
+        std::set({ std::move(user) })
+    );
+
+    repository_->insert_task_list(task_list);
+
+    return {
+        .message = "status",
+        .notification = std::nullopt
+    };
+}
+
+ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, const std::string &username) const {
+    std::shared_ptr<User> user = repository_->get_user_by_username(username);
+
+    if (!payload.contains("name")) {
+        throw std::exception();
+    }
+
+    if (!payload.at("name").is_string()) {
+        throw std::exception();
+    }
+
+    std::string tl_name = payload.at("name").get<std::string>();
+
+    if (!repository_->is_task_list_name_taken(tl_name)) {
+        throw std::exception();
+    }
+
+    auto task_list = repository_->get_task_list_by_name(tl_name);
+
+    if (task_list->shared_users.contains(user)) {
+        throw std::exception();
+    }
+
+    task_list->shared_users.insert(user);
+
+    return {
+        .message = "status",
+        .notification = std::nullopt
+    };
 }

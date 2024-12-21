@@ -30,6 +30,10 @@ std::shared_ptr<TaskList> Repository::get_task_list_by_name(const std::string &t
     return task_lists.at(task_list_name);
 }
 
+bool Repository::is_task_list_name_taken(const std::string &task_list_name) {
+    return task_lists.contains(task_list_name);
+}
+
 std::vector<std::shared_ptr<TaskList> > Repository::get_task_list_by_user(const std::string &username) {
     std::vector<std::shared_ptr<TaskList> > return_list;
     for (const auto &task_list: task_lists | std::ranges::views::values) {
