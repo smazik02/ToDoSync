@@ -2,6 +2,10 @@
 
 #include <ranges>
 
+bool Repository::is_username_taken(const std::string &username) const {
+    return users.contains(username);
+}
+
 std::shared_ptr<User> Repository::get_user_by_username(const std::string &username) {
     return users.at(username);
 }

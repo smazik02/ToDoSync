@@ -12,9 +12,15 @@ class OperationService {
 public:
     explicit OperationService(std::shared_ptr<Repository> repository);
 
-    ServiceResponse service_gateway(ResourceMethod resource_method, const nlohmann::json &payload);
+    ServiceResponse service_gateway(ResourceMethod resource_method, const nlohmann::json &payload, User* user);
 
-    ServiceResponse user_login(const nlohmann::json &payload);
+    /**
+     *
+     * @param payload - { username: "username" }
+     * @param user - pointer to the user we want to add
+     * @return - {}
+     */
+    ServiceResponse user_login(const nlohmann::json &payload, User* user) const;
 };
 
 

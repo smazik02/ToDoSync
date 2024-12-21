@@ -6,11 +6,12 @@ OperationService::OperationService(std::shared_ptr<Repository> repository) {
     repository_ = std::move(repository);
 }
 
-
-ServiceResponse OperationService::service_gateway(const ResourceMethod resource_method, const nlohmann::json &payload) {
+ServiceResponse OperationService::service_gateway(const ResourceMethod resource_method, const nlohmann::json &payload,
+                                                  User *user) {
+    // TODO: validate username in payload
     switch (resource_method) {
         case AUTH_LOGIN: {
-            break;
+            return user_login(payload, user);
         }
         case T_GET_ALL: {
             break;
@@ -35,6 +36,14 @@ ServiceResponse OperationService::service_gateway(const ResourceMethod resource_
     return {};
 }
 
-ServiceResponse user_login(const nlohmann::json &payload) {
-    return {};
+ServiceResponse OperationService::user_login(const nlohmann::json &payload, User *user) const {
+    if (!payload.contains("username"))
+        throw std::exception();
+
+    std::string username = payload.at("username");
+    if (repository_->is_username_taken(username))
+        return {.message = "user with that name already exists", .notification = std::nullopt};
+
+    repository_->add_user(std::shared_ptr<User>(user));
+    return {.message = "success", .notification = std::nullopt};
 }

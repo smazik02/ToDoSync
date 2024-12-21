@@ -11,6 +11,8 @@ class Repository {
     std::map<std::string, std::shared_ptr<TaskList> > task_lists;
 
 public:
+    bool is_username_taken(const std::string &username) const;
+
     std::shared_ptr<User> get_user_by_username(const std::string &username);
 
     void add_user(std::shared_ptr<User> user);
