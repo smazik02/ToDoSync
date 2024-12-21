@@ -57,4 +57,14 @@ struct ParserOutput {
     nlohmann::json payload;
 };
 
+struct Notification {
+    std::vector<int> fds;
+    std::string message;
+};
+
+struct ServiceResponse {
+    std::string message;
+    std::optional<Notification> notification;
+};
+
 #endif //TYPES_HPP
