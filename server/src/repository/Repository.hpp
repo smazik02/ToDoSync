@@ -24,6 +24,8 @@ public:
 
     std::shared_ptr<TaskList> get_task_list_by_name(const std::string &task_list_name);
 
+    bool is_task_list_name_taken(const std::string &task_list_name);
+
     std::vector<std::shared_ptr<TaskList> > get_task_list_by_user(const std::string &username);
 
     void insert_task_list(std::shared_ptr<TaskList> task_list);
