@@ -46,3 +46,7 @@ std::vector<std::shared_ptr<TaskList> > Repository::get_task_list_by_user(const 
 void Repository::insert_task_list(std::shared_ptr<TaskList> task_list) {
     task_lists.emplace(task_list->name, task_list);
 }
+
+int Repository::task_sequence_nextval() {
+    return task_sequence++;
+}
