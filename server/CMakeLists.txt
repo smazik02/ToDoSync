@@ -12,5 +12,8 @@ add_executable(ToDoSync src/main.cpp
         src/server/Server.cpp
         src/server/Server.hpp
         src/types.hpp
+        src/parser/Parser.cpp
+        src/parser/Parser.hpp
+        src/types.hpp
         src/repository/Repository.cpp
         src/repository/Repository.hpp)
