@@ -16,7 +16,7 @@ class Server {
     sockaddr_in address{};
     socklen_t address_len;
     epoll_event events{};
-    std::map<int, std::unique_ptr<User> > users;
+    std::unordered_map<int, std::unique_ptr<User> > users;
 
 public:
     explicit Server(int port);
