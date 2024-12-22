@@ -12,6 +12,7 @@ class Server {
     std::shared_ptr<Repository> repository_;
     int socket_fd;
     int epoll_fd;
+    std::unique_ptr<User> server_ptr_;
     sockaddr_in address{};
     socklen_t address_len;
     epoll_event events{};
@@ -23,10 +24,6 @@ public:
     ~Server();
 
     void run();
-
-    void stop();
-
-    void terminate(const char *message);
 };
 
 

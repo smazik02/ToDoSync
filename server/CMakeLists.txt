@@ -18,4 +18,5 @@ add_executable(ToDoSync src/main.cpp
         src/repository/Repository.cpp
         src/repository/Repository.hpp
         src/operation_service/OperationService.cpp
-        src/operation_service/OperationService.hpp)
+        src/operation_service/OperationService.hpp
+        src/exceptions.hpp)

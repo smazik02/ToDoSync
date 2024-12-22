@@ -1,5 +1,7 @@
+#include <csignal>
 #include <iostream>
 
+#include "exceptions.hpp"
 #include "server/Server.hpp"
 
 int main(const int argc, char *argv[]) {
@@ -10,11 +12,15 @@ int main(const int argc, char *argv[]) {
 
     const int port = std::stoi(argv[1], nullptr, 10);
 
-    std::cout << "Hello from server at port " << argv[1] << std::endl;
+    std::printf("Hello from server at port %d\nIf you want to quit, enter 'q' or 'Q' on the console\n", port);
 
-    auto server = Server(port);
+    try {
+        auto server = Server(port);
+        server.run();
+    } catch (server_error &error) {
+        perror(error.what());
+        return EXIT_FAILURE;
+    }
 
-    server.run();
-
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
