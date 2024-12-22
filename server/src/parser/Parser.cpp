@@ -1,5 +1,6 @@
 #include "Parser.hpp"
 
+#include "../exceptions.hpp"
 #include "../types.hpp"
 
 Parser::Parser() {
@@ -38,8 +39,7 @@ ResourceMethod Parser::determine_method(const std::string& s) {
         ResourceMethod method = request_method_map.at(s);
         return method;
     } catch (const std::out_of_range& e) {
-        // throw exception
-        throw std::exception();
+        throw parser_error("Method unknown");
     }
 }
 
@@ -48,8 +48,7 @@ nlohmann::json Parser::parse_json(const std::string& s) {
         nlohmann::json parsed_string = nlohmann::json::parse(s);
         return parsed_string;
     } catch (const nlohmann::json::parse_error& e) {
-        // error
-        throw std::exception();
+        throw parser_error("Invalid request body");
     }
 }
 
@@ -62,13 +61,11 @@ ParserOutput Parser::auth_request(const std::string& data) {
     auto lines = split(data, "\n");
 
     if (!is_request_valid(lines.size())) {
-        // throw exception
-        throw std::exception();
+        throw parser_error("Request form invalid");
     }
 
     if (lines.at(0) != "AUTH|LOGIN") {
-        // throw exception
-        throw std::exception();
+        throw parser_error("Operation not allowed");
     }
 
     ParserOutput output {
@@ -88,8 +85,7 @@ ParserOutput Parser::process_request(const std::string& data) {
     auto lines = split(data, "\n");
 
     if (!is_request_valid(lines.size())) {
-        // throw exception
-        throw std::exception();
+        throw parser_error("Request form invalid");
     }
 
     ParserOutput output = {

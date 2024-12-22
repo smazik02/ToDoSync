@@ -5,12 +5,12 @@
 
 #include <iostream>
 #include <ranges>
-#include <utility>
 
 #include "../exceptions.hpp"
 #include "../types.hpp"
 
-Server::Server(const int port): repository_(std::make_shared<Repository>()) {
+Server::Server(const int port): repository_(std::make_shared<Repository>()), parser_(Parser()),
+                                operation_service_(OperationService(repository_)) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
         throw server_error("socket create error");
@@ -90,6 +90,25 @@ void Server::run() {
 
         char buffer[4096]{};
         const ssize_t cnt = recv(incoming->fd, buffer, 4096, 0);
+        // TODO: wait for all buffer
+
+        std::printf("Processing request from client\n");
+        try {
+            ParserOutput parsed_output = parser_.process_request(buffer);
+            ServiceResponse response = operation_service_.service_gateway(parsed_output.resource_method,
+                                                                      parsed_output.payload, incoming);
+            if (response.notification.has_value()) {
+                // TODO: execute notifications
+            }
+
+            send(incoming->fd, response.message.data(), response.message.size(), 0);
+            std::printf("Response sent to client\n");
+        } catch (parser_error &error) {
+            std::printf("Parser error occured\n");
+            const char* error_msg = error.what();
+            send(incoming->fd, error_msg, sizeof(error_msg), 0);
+            std::printf("Error message sent to client\n");
+        }
 
         if (cnt < 1) {
             std::printf("Removing %d\n", incoming->fd);
