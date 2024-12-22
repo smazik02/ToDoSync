@@ -9,11 +9,6 @@
 class OperationService {
     std::shared_ptr<Repository> repository_;
 
-public:
-    explicit OperationService(std::shared_ptr<Repository> repository);
-
-    ServiceResponse service_gateway(ResourceMethod resource_method, const nlohmann::json &payload, User *user) const;
-
     /**
      *
      * @param payload - { username: "username" }
@@ -61,6 +56,13 @@ public:
      * @return status
      */
     ServiceResponse join_task_list(const nlohmann::json &payload, const std::string &username) const;
+
+    ServiceResponse handle_error(const char *error_message) const;
+
+public:
+    explicit OperationService(std::shared_ptr<Repository> repository);
+
+    ServiceResponse service_gateway(ResourceMethod resource_method, const nlohmann::json &payload, User *user) const;
 };
 
 
