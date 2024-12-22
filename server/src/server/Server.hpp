@@ -6,17 +6,22 @@
 #include <sys/socket.h>
 
 #include "../types.hpp"
+#include "../operation_service/OperationService.hpp"
 #include "../repository/Repository.hpp"
+#include "../parser//Parser.hpp"
 
 class Server {
     std::shared_ptr<Repository> repository_;
+    Parser parser_;
+    OperationService operation_service_;
+
     int socket_fd;
     int epoll_fd;
     std::unique_ptr<User> server_ptr_;
     sockaddr_in address{};
     socklen_t address_len;
     epoll_event events{};
-    std::map<int, std::unique_ptr<User> > users;
+    std::unordered_map<int, std::unique_ptr<User> > users;
 
 public:
     explicit Server(int port);

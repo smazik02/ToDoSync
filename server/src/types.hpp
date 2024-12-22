@@ -3,11 +3,11 @@
 
 #include <sys/socket.h>
 
-#include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <queue>
+#include <unordered_set>
+
 #include "../include/json.hpp"
 
 // -= Resources =-
@@ -33,8 +33,8 @@ struct User {
 
 struct TaskList {
     std::string name; // unique
-    std::map<int, std::shared_ptr<Task> > tasks;
-    std::set<std::shared_ptr<User> > shared_users;
+    std::unordered_map<int, std::shared_ptr<Task> > tasks;
+    std::unordered_set<std::shared_ptr<User> > shared_users;
 };
 
 
