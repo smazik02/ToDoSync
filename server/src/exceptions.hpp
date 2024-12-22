@@ -23,10 +23,10 @@ public:
     explicit parser_error(const char *message): message(message) {
     }
 
-    const char *what() {
+    std::string what() {
         nlohmann::json body;
         body["message"] = message;
-        return ("FAIL\n" + body.dump() + "\n\n").c_str();
+        return "FAIL\n" + body.dump() + "\n\n";
     }
 };
 

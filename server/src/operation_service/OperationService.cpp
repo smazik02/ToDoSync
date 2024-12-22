@@ -153,8 +153,8 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
 
     const auto task_list = std::make_shared<TaskList>(
         tl_name,
-        std::unordered_map<int, std::shared_ptr<Task>>(),
-        std::unordered_set({ std::move(user) })
+        std::unordered_map<int, std::shared_ptr<Task> >(),
+        std::unordered_set({std::move(user)})
     );
 
     repository_->insert_task_list(task_list);

@@ -94,19 +94,19 @@ void Server::run() {
 
         std::printf("Processing request from client\n");
         try {
-            ParserOutput parsed_output = parser_.process_request(buffer);
-            ServiceResponse response = operation_service_.service_gateway(parsed_output.resource_method,
-                                                                      parsed_output.payload, incoming);
-            if (response.notification.has_value()) {
+            auto [resource_method, payload] = parser_.process_request(buffer);
+            auto [response_message, notifications] = operation_service_.service_gateway(
+                resource_method, payload, incoming);
+            if (notifications.has_value()) {
                 // TODO: execute notifications
             }
 
-            send(incoming->fd, response.message.data(), response.message.size(), 0);
+            send(incoming->fd, response_message.data(), response_message.size(), 0);
             std::printf("Response sent to client\n");
         } catch (parser_error &error) {
             std::printf("Parser error occured\n");
-            const char* error_msg = error.what();
-            send(incoming->fd, error_msg, sizeof(error_msg), 0);
+            std::string error_msg = error.what();
+            send(incoming->fd, error_msg.data(), error_msg.length(), 0);
             std::printf("Error message sent to client\n");
         }
 
@@ -117,6 +117,6 @@ void Server::run() {
             continue;
         }
 
-        std::printf("%s\n", buffer);
+        std::printf("%s", buffer);
     }
 }
