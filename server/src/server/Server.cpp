@@ -108,8 +108,6 @@ void Server::run() {
         incoming->buffer = messages.at(messages.size() - 1);
         messages.pop_back();
 
-        std::printf("Processing request from client\n");
-
         for (const auto &message: messages) {
             try {
                 auto [resource_method, payload] = parser_.process_request(message);
@@ -130,7 +128,5 @@ void Server::run() {
 
             std::printf("%s", message.c_str());
         }
-
-        std::printf("%s", buffer);
     }
 }
