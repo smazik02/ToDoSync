@@ -11,7 +11,7 @@ class OperationService {
 
     /**
      *
-     * @param payload - { username: "username" }
+     * @param payload - { username: <username> }
      * @param user - pointer to the user we want to add
      * @return - {}
      */
@@ -19,14 +19,14 @@ class OperationService {
 
     /**
      *
-     * @param payload - { username: "username", task_list_name: "tasklist name" }
+     * @param payload - { task_list_name: <tasklist_name> }
      * @return - { tasks: Task[] }
      */
     ServiceResponse get_all_tasks(const nlohmann::json &payload) const;
 
     /**
      *
-     * @param payload - { username: "username", task_list_name: "tasklist name", task_name: "task name", task_description: "task description" }
+     * @param payload - { task_list_name: <tasklist_name>, task_name: <task_name>, task_description: <task_description> }
      * @return - {}
      */
     ServiceResponse create_task(const nlohmann::json &payload) const;
@@ -34,14 +34,14 @@ class OperationService {
 
     /**
      *
-     * @param payload - { username: "username", task_id: "task id", task_list_name: "task list name" }
+     * @param payload - { task_id: <task_id>, task_list_name: <task_list_name> }
      * @return - {}
      */
     ServiceResponse remove_task(const nlohmann::json &payload) const;
 
     /**
-    * @param username of connected and signed user
-    * @return { lists: ['<list_name1>', '<list_name2>'] }
+    * @param username of connected and signed user, payload must be {}
+    * @return { lists: [<list_name1>, <list_name2>] }
     */
     ServiceResponse get_all_user_task_lists(const std::string &username) const;
 

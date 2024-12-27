@@ -1,17 +1,22 @@
 #ifndef REPOSITORY_HPP
 #define REPOSITORY_HPP
 
-#include <map>
-
 #include "../types.hpp"
 
 
 class Repository {
     int task_sequence = 0;
-    std::map<std::string, std::shared_ptr<User> > users;
-    std::map<std::string, std::shared_ptr<TaskList> > task_lists;
+    std::unordered_map<std::string, std::shared_ptr<User> > users;
+    std::unordered_map<std::string, std::shared_ptr<TaskList> > task_lists;
+    std::unordered_set<int> not_logged_users;
 
 public:
+    bool is_user_logged(int fd);
+
+    void append_not_logged(int fd);
+
+    void remove_not_logged(int fd);
+
     bool is_username_taken(const std::string &username) const;
 
     std::optional<std::shared_ptr<User> > get_user_by_username(const std::string &username);

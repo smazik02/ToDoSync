@@ -2,6 +2,18 @@
 
 #include <ranges>
 
+bool Repository::is_user_logged(int fd) {
+    return !not_logged_users.contains(fd);
+}
+
+void Repository::append_not_logged(int fd) {
+    not_logged_users.insert(fd);
+}
+
+void Repository::remove_not_logged(int fd) {
+    not_logged_users.erase(fd);
+}
+
 bool Repository::is_username_taken(const std::string &username) const {
     return users.contains(username);
 }

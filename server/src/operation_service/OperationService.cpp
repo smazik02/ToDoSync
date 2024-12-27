@@ -8,7 +8,14 @@ OperationService::OperationService(std::shared_ptr<Repository> repository) {
 
 ServiceResponse OperationService::service_gateway(const ResourceMethod resource_method, const nlohmann::json &payload,
                                                   User *user) const {
-    // TODO: validate username in payload
+    if (!repository_->is_user_logged(user->fd) && resource_method != AUTH_LOGIN) {
+        return handle_error("Not logged");
+    }
+
+    if (repository_->is_user_logged(user->fd) && resource_method == AUTH_LOGIN) {
+        return handle_error("You are already logged in");
+    }
+
     switch (resource_method) {
         case AUTH_LOGIN: {
             return user_login(payload, user);
@@ -46,6 +53,7 @@ ServiceResponse OperationService::user_login(const nlohmann::json &payload, User
         return handle_error("User with that name already exists");
     }
 
+    repository_->remove_not_logged(user->fd);
     repository_->add_user(std::shared_ptr<User>(user));
     return {.message = "OK\n\n", .notification = std::nullopt};
 }
