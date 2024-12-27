@@ -4,26 +4,18 @@
 #include "../types.hpp"
 
 class Parser {
-    std::unordered_map<std::string, ResourceMethod> request_method_map;
+    static std::vector<std::string> split(const std::string &s, const std::string &delimiter);
 
-    std::vector<std::string> split(const std::string &s, const std::string &delimiter) const;
+    static bool is_request_valid(std::size_t size);
 
-    bool is_request_valid(std::size_t size) const;
+    static ResourceMethod determine_method(const std::string &s);
 
-    ResourceMethod determine_method(const std::string &s) const;
-
-    nlohmann::json parse_json(const std::string &s) const;
+    static nlohmann::json parse_json(const std::string &s);
 
 public:
-    Parser();
+    static ParserOutput process_request(const std::string &data);
 
-    ~Parser();
-
-    ParserOutput process_request(const std::string &data) const;
-
-    ParserOutput auth_request(const std::string &data) const;
-
-    std::vector<std::string> process_buffer(const std::string &buffer) const;
+    static std::vector<std::string> process_buffer(const std::string &buffer);
 };
 
 #endif //PARSER_HPP

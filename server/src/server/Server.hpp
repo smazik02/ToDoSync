@@ -12,7 +12,6 @@
 
 class Server {
     std::shared_ptr<Repository> repository_;
-    Parser parser_;
     OperationService operation_service_;
 
     int socket_fd;

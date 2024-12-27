@@ -3,19 +3,7 @@
 #include "../exceptions.hpp"
 #include "../types.hpp"
 
-Parser::Parser() {
-    request_method_map["T|GET_ALL"] = T_GET_ALL;
-    request_method_map["T|CREATE"] = T_CREATE;
-    request_method_map["T|DELETE"] = T_DELETE;
-
-    request_method_map["TL|GET_ALL"] = TL_GET_ALL;
-    request_method_map["TL|CREATE"] = TL_CREATE;
-    request_method_map["TL|JOIN"] = TL_JOIN;
-}
-
-Parser::~Parser() = default;
-
-std::vector<std::string> Parser::split(const std::string &s, const std::string &delimiter) const {
+std::vector<std::string> Parser::split(const std::string &s, const std::string &delimiter) {
     size_t pos_start = 0, pos_end;
     const size_t delim_len = delimiter.length();
     std::vector<std::string> res;
@@ -30,19 +18,23 @@ std::vector<std::string> Parser::split(const std::string &s, const std::string &
     return res;
 }
 
-bool Parser::is_request_valid(const std::size_t size) const {
+bool Parser::is_request_valid(const std::size_t size) {
     return size == 2;
 }
 
-ResourceMethod Parser::determine_method(const std::string &s) const {
-    try {
-        return request_method_map.at(s);
-    } catch (const std::out_of_range &e) {
-        throw parser_error("Method unknown");
-    }
+ResourceMethod Parser::determine_method(const std::string &s) {
+    if (s == "AUTH|LOGIN") return AUTH_LOGIN;
+    if (s == "T|GET_ALL") return T_GET_ALL;
+    if (s == "T|CREATE") return T_CREATE;
+    if (s == "T|DELETE") return T_DELETE;
+    if (s == "TL|GET_ALL") return TL_GET_ALL;
+    if (s == "TL|CREATE") return TL_CREATE;
+    if (s == "TL|JOIN") return TL_JOIN;
+
+    throw parser_error("Method unknown");
 }
 
-nlohmann::json Parser::parse_json(const std::string &s) const {
+nlohmann::json Parser::parse_json(const std::string &s) {
     try {
         return nlohmann::json::parse(s);
     } catch (const nlohmann::json::parse_error &e) {
@@ -52,34 +44,10 @@ nlohmann::json Parser::parse_json(const std::string &s) const {
 
 /*
 *   EXPECTED:
-*   AUTH|LOGIN
-*   { "username": "<username>" }
-*/
-ParserOutput Parser::auth_request(const std::string &data) const {
-    const auto lines = split(data, "\n");
-
-    if (!is_request_valid(lines.size())) {
-        throw parser_error("Request form invalid");
-    }
-
-    if (lines.at(0) != "AUTH|LOGIN") {
-        throw parser_error("Operation not allowed");
-    }
-
-    ParserOutput output{
-        .resource_method = AUTH_LOGIN,
-        .payload = parse_json(lines.at(1))
-    };
-
-    return output;
-}
-
-/*
-*   EXPECTED:
 *   Method from ResourceMethod
 *   Data in valid JSON
 */
-ParserOutput Parser::process_request(const std::string &data) const {
+ParserOutput Parser::process_request(const std::string &data) {
     const auto lines = split(data, "\n");
 
     if (!is_request_valid(lines.size())) {
@@ -94,6 +62,6 @@ ParserOutput Parser::process_request(const std::string &data) const {
     return output;
 }
 
-std::vector<std::string> Parser::process_buffer(const std::string &buffer) const {
+std::vector<std::string> Parser::process_buffer(const std::string &buffer) {
     return split(buffer, "\n\n");
 }

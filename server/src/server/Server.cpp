@@ -9,7 +9,7 @@
 #include "../exceptions.hpp"
 #include "../types.hpp"
 
-Server::Server(const int port): repository_(std::make_shared<Repository>()), parser_(Parser()),
+Server::Server(const int port): repository_(std::make_shared<Repository>()),
                                 operation_service_(OperationService(repository_)) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
@@ -101,14 +101,14 @@ void Server::run() {
 
         incoming->buffer += std::string(buffer);
 
-        auto messages = parser_.process_buffer(incoming->buffer);
+        auto messages = Parser::process_buffer(incoming->buffer);
 
         incoming->buffer = messages.at(messages.size() - 1);
         messages.pop_back();
 
         for (const auto &message: messages) {
             try {
-                auto [resource_method, payload] = parser_.process_request(message);
+                auto [resource_method, payload] = Parser::process_request(message);
                 auto [response_message, notifications] = operation_service_.service_gateway(
                     resource_method, payload, incoming);
                 if (notifications.has_value()) {
