@@ -90,7 +90,7 @@ void Server::run() {
 
         char buffer[4096]{};
         const ssize_t cnt = recv(incoming->fd, buffer, 4095, 0);
-        if (cnt < 0) {
+        if (cnt < 1) {
             // TODO: handle error in a better way
             std::printf("Removing %d\n", incoming->fd);
             epoll_ctl(epoll_fd, EPOLL_CTL_DEL, incoming->fd, nullptr);
@@ -98,8 +98,6 @@ void Server::run() {
             repository_->remove_user(incoming->username);
             continue;
         }
-        if (cnt == 0)
-            continue;
 
         incoming->buffer += std::string(buffer);
 
