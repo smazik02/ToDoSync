@@ -22,14 +22,14 @@ class OperationService {
      * @param payload - { task_list_name: <tasklist_name> }
      * @return - { tasks: Task[] }
      */
-    ServiceResponse get_all_tasks(const nlohmann::json &payload) const;
+    ServiceResponse get_all_tasks(const nlohmann::json &payload, const std::string &username) const;
 
     /**
      *
      * @param payload - { task_list_name: <tasklist_name>, task_name: <task_name>, task_description: <task_description> }
      * @return - {}
      */
-    ServiceResponse create_task(const nlohmann::json &payload) const;
+    ServiceResponse create_task(const nlohmann::json &payload, const std::string &username) const;
 
 
     /**
@@ -37,7 +37,7 @@ class OperationService {
      * @param payload - { task_id: <task_id>, task_list_name: <task_list_name> }
      * @return - {}
      */
-    ServiceResponse remove_task(const nlohmann::json &payload) const;
+    ServiceResponse remove_task(const nlohmann::json &payload, const std::string &username) const;
 
     /**
     * @param username of connected and signed user, payload must be {}
@@ -57,7 +57,7 @@ class OperationService {
      */
     ServiceResponse join_task_list(const nlohmann::json &payload, const std::string &username) const;
 
-    ServiceResponse handle_error(const char *error_message) const;
+    static ServiceResponse handle_error(const char *error_message) ;
 
 public:
     explicit OperationService(std::shared_ptr<Repository> repository);

@@ -21,13 +21,13 @@ ServiceResponse OperationService::service_gateway(const ResourceMethod resource_
             return user_login(payload, user);
         }
         case T_GET_ALL: {
-            return get_all_tasks(payload);
+            return get_all_tasks(payload, user->username);
         }
         case T_CREATE: {
-            return create_task(payload);
+            return create_task(payload, user->username);
         }
         case T_DELETE: {
-            return remove_task(payload);
+            return remove_task(payload, user->username);
         }
         case TL_GET_ALL: {
             return get_all_user_task_lists(user->username);
@@ -58,7 +58,7 @@ ServiceResponse OperationService::user_login(const nlohmann::json &payload, User
     return {.message = "OK\n\n", .notification = std::nullopt};
 }
 
-ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload) const {
+ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload, const std::string &username) const {
     if (!payload.contains("task_list_name") || !payload.at("task_list_name").is_string()) {
         return handle_error("JSON validation error");
     }
@@ -67,6 +67,11 @@ ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload) c
     const auto task_list = repository_->get_task_list_by_name(task_list_name);
     if (!task_list.has_value()) {
         return handle_error("Task list with that name doesn't exist");
+    }
+
+    const auto user = repository_->get_user_by_username(username);
+    if (!task_list.value()->shared_users.contains(user.value())) {
+        return handle_error("You don't belong to this task list!");
     }
 
     auto response_json = nlohmann::json();
@@ -82,7 +87,7 @@ ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload) c
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 
-ServiceResponse OperationService::create_task(const nlohmann::json &payload) const {
+ServiceResponse OperationService::create_task(const nlohmann::json &payload, const std::string &username) const {
     if (!payload.contains("task_list_name") || !payload.contains("task_name") ||
         !payload.contains("task_description")) {
         return handle_error("JSON validation error");
@@ -104,12 +109,17 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload) con
         return handle_error("Task list with that name doesn't exist");
     }
 
+    const auto user = repository_->get_user_by_username(username);
+    if (!task_list.value()->shared_users.contains(user.value())) {
+        return handle_error("You don't belong to this task list!");
+    }
+
     task_list.value()->tasks.emplace(task->id, task);
 
     return {.message = "OK\n\n", .notification = std::nullopt};
 }
 
-ServiceResponse OperationService::remove_task(const nlohmann::json &payload) const {
+ServiceResponse OperationService::remove_task(const nlohmann::json &payload, const std::string &username) const {
     if (!payload.contains("task_id") || !payload.contains("task_list_name")) {
         return handle_error("JSON validation error");
     }
@@ -123,6 +133,11 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload) con
 
     if (!task_list.has_value()) {
         return handle_error("Task list with that name doesn't exist");
+    }
+
+    const auto user = repository_->get_user_by_username(username);
+    if (!task_list.value()->shared_users.contains(user.value())) {
+        return handle_error("You don't belong to this task list!");
     }
 
     task_list.value()->tasks.erase(task_id);
@@ -198,7 +213,7 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
     };
 }
 
-ServiceResponse OperationService::handle_error(const char *error_message) const {
+ServiceResponse OperationService::handle_error(const char *error_message) {
     nlohmann::json error_json;
     error_json["message"] = error_message;
     return {.message = "FAIL\n" + error_json.dump() + "\n\n", .notification = std::nullopt};
