@@ -75,11 +75,11 @@ void Server::run() {
             if (user_fd == -1)
                 throw server_error("accept error");
 
-            // const auto user = new User{.fd = user_fd};
-            const auto user = std::make_shared<User>(user_fd, "", "", std::to_string(user_fd));
-            repository_->add_user(user);
+            const auto user = new User{.fd = user_fd};
+            // const auto user = std::make_shared<User>(user_fd, "", "", ""); debug leftover
+            repository_->append_not_logged(user_fd);
 
-            epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user.get()}};
+            epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user}};
             epoll_ctl(epoll_fd, EPOLL_CTL_ADD, user_fd, &ee);
 
             getnameinfo(reinterpret_cast<sockaddr *>(&user_addr), user_addr_len, user->address.data(), NI_MAXHOST,
@@ -94,6 +94,7 @@ void Server::run() {
             // TODO: handle error in a better way
             std::printf("Removing %d\n", incoming->fd);
             epoll_ctl(epoll_fd, EPOLL_CTL_DEL, incoming->fd, nullptr);
+            repository_->remove_not_logged(incoming->fd);
             repository_->remove_user(incoming->username);
             continue;
         }
@@ -121,7 +122,7 @@ void Server::run() {
                 send(incoming->fd, response_message.data(), response_message.size(), 0);
                 std::printf("Response sent to client\n");
             } catch (parser_error &error) {
-                std::printf("Parser error occured\n");
+                std::printf("Parser error occurred\n");
                 std::string error_msg = error.what();
                 send(incoming->fd, error_msg.data(), error_msg.length(), 0);
                 std::printf("Error message sent to client\n");
@@ -129,5 +130,7 @@ void Server::run() {
 
             std::printf("%s", message.c_str());
         }
+
+        std::printf("%s", buffer);
     }
 }

@@ -40,7 +40,7 @@ class OperationService {
     ServiceResponse remove_task(const nlohmann::json &payload) const;
 
     /**
-    * @param username of connected and signed user
+    * @param username of connected and signed user, payload must be {}
     * @return { lists: ['<list_name1>', '<list_name2>'] }
     */
     ServiceResponse get_all_user_task_lists(const std::string &username) const;
