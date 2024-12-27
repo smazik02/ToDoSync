@@ -89,34 +89,45 @@ void Server::run() {
         }
 
         char buffer[4096]{};
-        const ssize_t cnt = recv(incoming->fd, buffer, 4096, 0);
-        // TODO: wait for all buffer
-
-        std::printf("Processing request from client\n");
-        try {
-            auto [resource_method, payload] = parser_.process_request(buffer);
-            auto [response_message, notifications] = operation_service_.service_gateway(
-                resource_method, payload, incoming);
-            if (notifications.has_value()) {
-                // TODO: execute notifications
-            }
-
-            send(incoming->fd, response_message.data(), response_message.size(), 0);
-            std::printf("Response sent to client\n");
-        } catch (parser_error &error) {
-            std::printf("Parser error occured\n");
-            std::string error_msg = error.what();
-            send(incoming->fd, error_msg.data(), error_msg.length(), 0);
-            std::printf("Error message sent to client\n");
-        }
-
-        if (cnt < 1) {
+        const ssize_t cnt = recv(incoming->fd, buffer, 4095, 0);
+        if (cnt < 0) {
+            // TODO: handle error in a better way
             std::printf("Removing %d\n", incoming->fd);
             epoll_ctl(epoll_fd, EPOLL_CTL_DEL, incoming->fd, nullptr);
             repository_->remove_user(incoming->username);
             continue;
         }
+        if (cnt == 0)
+            continue;
 
-        std::printf("%s", buffer);
+        incoming->buffer += std::string(buffer);
+
+        auto messages = parser_.process_buffer(incoming->buffer);
+
+        incoming->buffer = messages.at(messages.size() - 1);
+        messages.pop_back();
+
+        std::printf("Processing request from client\n");
+
+        for (const auto &message: messages) {
+            try {
+                auto [resource_method, payload] = parser_.process_request(message);
+                auto [response_message, notifications] = operation_service_.service_gateway(
+                    resource_method, payload, incoming);
+                if (notifications.has_value()) {
+                    // TODO: execute notifications
+                }
+
+                send(incoming->fd, response_message.data(), response_message.size(), 0);
+                std::printf("Response sent to client\n");
+            } catch (parser_error &error) {
+                std::printf("Parser error occured\n");
+                std::string error_msg = error.what();
+                send(incoming->fd, error_msg.data(), error_msg.length(), 0);
+                std::printf("Error message sent to client\n");
+            }
+
+            std::printf("%s", message.c_str());
+        }
     }
 }

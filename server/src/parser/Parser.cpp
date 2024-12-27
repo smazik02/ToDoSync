@@ -52,7 +52,7 @@ nlohmann::json Parser::parse_json(const std::string &s) const {
 
 /*
 *   EXPECTED:
-*   AUTH | LOGIN
+*   AUTH|LOGIN
 *   { "username": "<username>" }
 */
 ParserOutput Parser::auth_request(const std::string &data) const {
@@ -92,4 +92,8 @@ ParserOutput Parser::process_request(const std::string &data) const {
     };
 
     return output;
+}
+
+std::vector<std::string> Parser::process_buffer(const std::string &buffer) const {
+    return split(buffer, "\n\n");
 }

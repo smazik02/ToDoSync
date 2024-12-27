@@ -22,6 +22,8 @@ public:
     ParserOutput process_request(const std::string &data) const;
 
     ParserOutput auth_request(const std::string &data) const;
+
+    std::vector<std::string> process_buffer(const std::string &buffer) const;
 };
 
 #endif //PARSER_HPP

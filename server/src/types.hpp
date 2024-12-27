@@ -22,6 +22,8 @@ struct User {
     std::string address;
     std::string port;
 
+    std::string buffer{};
+
     std::string username; // unique
     std::queue<std::shared_ptr<Task> > task_notification_queue;
 
