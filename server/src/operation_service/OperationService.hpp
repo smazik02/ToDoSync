@@ -57,7 +57,7 @@ class OperationService {
      */
     ServiceResponse join_task_list(const nlohmann::json &payload, const std::string &username) const;
 
-    static ServiceResponse handle_error(const char *error_message) ;
+    static ServiceResponse handle_error(const std::string &error_message);
 
 public:
     explicit OperationService(std::shared_ptr<Repository> repository);

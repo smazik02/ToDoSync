@@ -30,4 +30,16 @@ public:
     }
 };
 
+class validator_error final : public std::exception {
+    std::string message;
+
+public:
+    explicit validator_error(const std::string &message): message(message) {
+    }
+
+    std::string &what() {
+        return message;
+    }
+};
+
 #endif //EXCEPTIONS_HPP
