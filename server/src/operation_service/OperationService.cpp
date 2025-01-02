@@ -2,6 +2,9 @@
 
 #include <utility>
 
+#include "../validator/Validator.hpp"
+#include "../exceptions.hpp"
+
 OperationService::OperationService(std::shared_ptr<Repository> repository) {
     repository_ = std::move(repository);
 }
@@ -44,8 +47,11 @@ ServiceResponse OperationService::service_gateway(const ResourceMethod resource_
 }
 
 ServiceResponse OperationService::user_login(const nlohmann::json &payload, User *user) const {
-    if (!payload.contains("username") || !payload.at("username").is_string()) {
-        return handle_error("JSON validation error");
+    const std::vector<ValidatorFieldData> validator_data = {{"username", STRING}};
+    try {
+        Validator::validate(payload, validator_data);
+    } catch (validator_error &e) {
+        return handle_error(e.what());
     }
 
     auto username = payload.at("username").get<std::string>();
@@ -59,8 +65,11 @@ ServiceResponse OperationService::user_login(const nlohmann::json &payload, User
 }
 
 ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload, const std::string &username) const {
-    if (!payload.contains("task_list_name") || !payload.at("task_list_name").is_string()) {
-        return handle_error("JSON validation error");
+    const std::vector<ValidatorFieldData> validator_data = {{"task_list_name", STRING}};
+    try {
+        Validator::validate(payload, validator_data);
+    } catch (validator_error &e) {
+        return handle_error(e.what());
     }
 
     const auto task_list_name = payload.at("task_list_name").get<std::string>();
@@ -88,13 +97,13 @@ ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload, c
 }
 
 ServiceResponse OperationService::create_task(const nlohmann::json &payload, const std::string &username) const {
-    if (!payload.contains("task_list_name") || !payload.contains("task_name") ||
-        !payload.contains("task_description")) {
-        return handle_error("JSON validation error");
-    }
-    if (!payload.at("task_list_name").is_string() || !payload.at("task_name").is_string() ||
-        !payload.at("task_description").is_string()) {
-        return handle_error("JSON validation error");
+    const std::vector<ValidatorFieldData> validator_data = {
+        {"task_list_name", STRING}, {"task_name", STRING}, {"task_description", STRING}
+    };
+    try {
+        Validator::validate(payload, validator_data);
+    } catch (validator_error &e) {
+        return handle_error(e.what());
     }
 
     auto task = std::make_shared<Task>(
@@ -120,11 +129,13 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
 }
 
 ServiceResponse OperationService::remove_task(const nlohmann::json &payload, const std::string &username) const {
-    if (!payload.contains("task_id") || !payload.contains("task_list_name")) {
-        return handle_error("JSON validation error");
-    }
-    if (!payload.at("task_id").is_number_integer() || !payload.at("task_list_name").is_string()) {
-        return handle_error("JSON validation error");
+    const std::vector<ValidatorFieldData> validator_data = {
+        {"task_id", INTEGER}, {"task_list_name", STRING}
+    };
+    try {
+        Validator::validate(payload, validator_data);
+    } catch (validator_error &e) {
+        return handle_error(e.what());
     }
 
     const auto task_id = payload.at("task_id").get<int>();
@@ -164,8 +175,11 @@ ServiceResponse OperationService::get_all_user_task_lists(const std::string &use
 ServiceResponse OperationService::create_task_list(const nlohmann::json &payload, const std::string &username) const {
     std::shared_ptr<User> user = repository_->get_user_by_username(username).value();
 
-    if (!payload.contains("name") || !payload.at("name").is_string()) {
-        return handle_error("JSON validation error");
+    const std::vector<ValidatorFieldData> validator_data = {{"username", STRING}};
+    try {
+        Validator::validate(payload, validator_data);
+    } catch (validator_error &e) {
+        return handle_error(e.what());
     }
 
     auto tl_name = payload.at("name").get<std::string>();
@@ -191,8 +205,11 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
 ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, const std::string &username) const {
     const std::shared_ptr<User> user = repository_->get_user_by_username(username).value();
 
-    if (!payload.contains("name") || !payload.at("name").is_string()) {
-        return handle_error("JSON validation error");
+    const std::vector<ValidatorFieldData> validator_data = {{"name", STRING}};
+    try {
+        Validator::validate(payload, validator_data);
+    } catch (validator_error &e) {
+        return handle_error(e.what());
     }
 
     const auto tl_name = payload.at("name").get<std::string>();
@@ -213,7 +230,7 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
     };
 }
 
-ServiceResponse OperationService::handle_error(const char *error_message) {
+ServiceResponse OperationService::handle_error(const std::string &error_message) {
     nlohmann::json error_json;
     error_json["message"] = error_message;
     return {.message = "FAIL\n" + error_json.dump() + "\n\n", .notification = std::nullopt};
