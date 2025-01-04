@@ -69,4 +69,15 @@ struct ServiceResponse {
     std::optional<Notification> notification;
 };
 
+enum FieldType {
+    BOOLEAN,
+    INTEGER,
+    STRING
+};
+
+struct ValidatorFieldData {
+    std::string field_name;
+    FieldType field_type;
+};
+
 #endif //TYPES_HPP
