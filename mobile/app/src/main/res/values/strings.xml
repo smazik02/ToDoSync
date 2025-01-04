@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ToDoSync</string>
+    <string name="title_activity_task_views">TaskViewsActivity</string>
 </resources>
