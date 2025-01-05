@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -67,46 +68,48 @@ class TasksActivity : ComponentActivity() {
 @Composable
 fun TaskCard(title: String, description: String) {
     OutlinedCard(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.padding(
-            horizontal = 10.dp,
-            vertical = 10.dp
-        ).fillMaxWidth()
     ) {
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.inversePrimary)
-                    .padding(1.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(1.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        modifier = Modifier.padding(10.dp, 0.dp),
                         text = title,
-                        style = MaterialTheme.typography.titleMedium
+                        modifier = Modifier.padding(10.dp, 0.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleMedium,
                     )
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Delete task"
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = "Delete task",
                         )
                     }
                 }
             }
             Text(
-                modifier = Modifier.padding(13.dp),
                 text = description,
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.padding(13.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
@@ -121,28 +124,40 @@ fun Container() {
     var isSheetOpen by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text("Lists") },
+                title = {
+                    Text(
+                        text = "Lists",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to lists"
+                            contentDescription = "Back to lists",
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
-                scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                )
-            ) 
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                scrollBehavior = scrollBehavior,
+            )
         },
         bottomBar = {
             BottomAppBar(
                 actions = {},
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
                 floatingActionButton = {
                     FloatingActionButton(
                         onClick = {
@@ -151,22 +166,27 @@ fun Container() {
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = "Localized description",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
-                }
+                },
             )
         }
     ) { innerPadding ->
-            LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                items(100) { item ->
-                    TaskCard("Task number: ${item+1}", "LOREM IPSUM")
-                }
+        LazyColumn(modifier = Modifier.padding(innerPadding)) {
+            items(100) { item ->
+                TaskCard("Task number: ${item + 1}", "LOREM IPSUM")
             }
+        }
 
         if (isSheetOpen) {
             ModalBottomSheet(
                 onDismissRequest = { isSheetOpen = false },
-                sheetState = sheetState
+                sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -176,13 +196,25 @@ fun Container() {
                     OutlinedTextField(
                         onValueChange = {},
                         value = "",
-                        label = { Text("Name") },
+                        label = {
+                            Text(
+                                text = "Name",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
                         singleLine = true
                     )
                     OutlinedTextField(
                         onValueChange = {},
                         value = "",
-                        label = { Text("Description") },
+                        label = {
+                            Text(
+                                text = "Description",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        },
                     )
                     Spacer(Modifier.height(8.dp))
                     Button(
