@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -66,8 +63,8 @@ class TaskViewsActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier
-                        .padding(vertical = 5.dp)
-                        .windowInsetsPadding(WindowInsets.safeDrawing),
+                        .fillMaxSize()
+                        .padding(vertical = 5.dp),
                     containerColor = MaterialTheme.colorScheme.background,
                     bottomBar = {
                         BottomAppBar(
@@ -76,7 +73,10 @@ class TaskViewsActivity : ComponentActivity() {
                                     isSheetOpen = true
                                     buttonText = "JOIN"
                                 }) {
-                                    Icon(Icons.Filled.Search, null)
+                                    Icon(
+                                        Icons.Filled.Search,
+                                        contentDescription = "Join a task list",
+                                    )
                                 }
                             },
                             floatingActionButton = {
@@ -88,9 +88,14 @@ class TaskViewsActivity : ComponentActivity() {
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                                     elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                                 ) {
-                                    Icon(Icons.Filled.Add, null)
+                                    Icon(
+                                        Icons.Filled.Add,
+                                        contentDescription = "Add a new task list",
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
                                 }
                             },
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -147,6 +152,7 @@ fun TaskListCard(title: String, modifier: Modifier = Modifier) {
                     Icon(
                         Icons.AutoMirrored.Filled.List,
                         contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -173,7 +179,7 @@ fun TaskListBottomSheetModalContent(buttonText: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
             onValueChange = {},
