@@ -1,5 +1,6 @@
 package com.example.todosync.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.windowInsetsPadding(WindowInsets.safeContent)
                 ) {
                     OutlinedCard { Greeting("ToDoSync") }
+//                    Button(onClick = {
+//                        Intent(applicationContext, TasksActivity::class.java).also {
+//                            startActivity(it)
+//                        }
+//                    }) {
+//                        Text("CLICK MEEE!")
+//                    }
                 }
             }
         }
