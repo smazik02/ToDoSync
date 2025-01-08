@@ -40,6 +40,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -181,9 +182,11 @@ fun TaskListBottomSheetModalContent(buttonText: String) {
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth(),
     ) {
+        var taskListNameText by remember { mutableStateOf("") }
+
         OutlinedTextField(
-            onValueChange = {},
-            value = "",
+            onValueChange = { taskListNameText = it },
+            value = taskListNameText,
             label = { Text("Name") })
         Spacer(Modifier.height(8.dp))
         Button(onClick = {}) {

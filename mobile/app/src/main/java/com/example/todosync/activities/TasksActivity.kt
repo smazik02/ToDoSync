@@ -43,6 +43,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -188,14 +189,17 @@ fun Container() {
                 sheetState = sheetState,
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
+                var taskNameText by remember { mutableStateOf("") }
+                var taskDescriptionText by remember { mutableStateOf("") }
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        onValueChange = {},
-                        value = "",
+                        onValueChange = { taskNameText = it },
+                        value = taskNameText,
                         label = {
                             Text(
                                 text = "Name",
@@ -206,8 +210,8 @@ fun Container() {
                         singleLine = true
                     )
                     OutlinedTextField(
-                        onValueChange = {},
-                        value = "",
+                        onValueChange = { taskDescriptionText = it },
+                        value = taskDescriptionText,
                         label = {
                             Text(
                                 text = "Description",
