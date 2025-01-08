@@ -6,13 +6,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.todosync.ui.theme.ToDoSyncTheme
@@ -23,18 +33,49 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            var userNameText by remember { mutableStateOf("") }
+
             ToDoSyncTheme {
                 Box(
-                    modifier = Modifier.windowInsetsPadding(WindowInsets.safeContent)
+                    modifier = Modifier
+                        .windowInsetsPadding(WindowInsets.safeContent)
+                        .fillMaxSize()
                 ) {
-                    OutlinedCard { Greeting("ToDoSync") }
-//                    Button(onClick = {
-//                        Intent(applicationContext, TasksActivity::class.java).also {
-//                            startActivity(it)
-//                        }
-//                    }) {
-//                        Text("CLICK MEEE!")
-//                    }
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        OutlinedTextField(
+                            value = userNameText,
+                            onValueChange = { userNameText = it },
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textStyle = MaterialTheme.typography.bodyLarge,
+                            label = {
+                                Text(
+                                    text = "Username",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        )
+                        Button(
+                            onClick = {
+                                Intent(applicationContext, TaskViewsActivity::class.java).also {
+                                    startActivity(it)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(),
+                        ) {
+                            Text(
+                                text = "Login",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                        }
+                    }
                 }
             }
         }
