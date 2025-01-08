@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.example.todosync.activities.ui.theme.ToDoSyncTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
-class TaskViewsActivity : ComponentActivity() {
+class TaskListsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

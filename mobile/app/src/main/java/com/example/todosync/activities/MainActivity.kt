@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                         )
                         Button(
                             onClick = {
-                                Intent(applicationContext, TaskViewsActivity::class.java).also {
+                                Intent(applicationContext, TaskListsActivity::class.java).also {
                                     startActivity(it)
                                 }
                             },
