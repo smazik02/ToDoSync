@@ -1,9 +1,9 @@
 package com.example.todosync.network
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.IOException
@@ -14,11 +14,11 @@ import java.net.Socket
 
 object TcpClientSingleton {
     val tcpClient: TcpClient by lazy {
-        TcpClient("10.0.2.2", 12345)
+        TcpClient()
     }
 }
 
-class TcpClient(private val serverIp: String, private val serverPort: Int) {
+class TcpClient {
 
     private var socket: Socket? = null
     private var outputStream: OutputStream? = null
@@ -26,18 +26,26 @@ class TcpClient(private val serverIp: String, private val serverPort: Int) {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    var serverIp: String? = null
+    var serverPort: Int? = null
     var onMessageReceived: ((String) -> Unit)? = null
+    var statusChannel = Channel<ConnectionState>()
 
     fun connect() {
+        if (serverIp == null || serverPort == null)
+            throw IOException("No server ip or port!")
+
         scope.launch {
             try {
-                socket = Socket(serverIp, serverPort)
+                socket = Socket(serverIp, serverPort!!)
                 outputStream = socket?.getOutputStream()
                 inputStream = socket?.getInputStream()
 
+                statusChannel.send(ConnectionState.CONNECTED)
                 listenForMessages()
             } catch (e: IOException) {
                 e.printStackTrace()
+                statusChannel.send(ConnectionState.DISCONNECTED)
             }
         }
     }
