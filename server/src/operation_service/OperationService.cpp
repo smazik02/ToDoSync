@@ -59,6 +59,7 @@ ServiceResponse OperationService::user_login(const nlohmann::json &payload, User
         return handle_error("User with that name already exists");
     }
 
+    user->username = username;
     repository_->remove_not_logged(user->fd);
     repository_->add_user(std::shared_ptr<User>(user));
     return {.message = "OK\n\n", .notification = std::nullopt};
@@ -125,7 +126,23 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
 
     task_list.value()->tasks.emplace(task->id, task);
 
-    return {.message = "OK\n\n", .notification = std::nullopt};
+    std::optional<Notification> notification = std::nullopt;
+    if (task_list.value()->shared_users.size() > 1) {
+        nlohmann::json notification_json;
+        notification_json["name"] = task_list_name;
+        notification_json["description"] = "CREATE";
+
+        const auto fds_size = task_list.value()->shared_users.size();
+        notification = std::optional(Notification{.message = "NOTIFY\n" + notification_json.dump() + "\n\n"});
+        notification.value().fds.reserve(fds_size);
+        for (const auto &task_list_user: task_list.value()->shared_users) {
+            if (task_list_user->fd != user.value()->fd) {
+                notification.value().fds.push_back(task_list_user->fd);
+            }
+        }
+    }
+
+    return {.message = "OK\n\n", .notification = notification};
 }
 
 ServiceResponse OperationService::remove_task(const nlohmann::json &payload, const std::string &username) const {
@@ -153,7 +170,23 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
 
     task_list.value()->tasks.erase(task_id);
 
-    return {.message = "OK\n\n", .notification = std::nullopt};
+    std::optional<Notification> notification = std::nullopt;
+    if (task_list.value()->shared_users.size() > 1) {
+        nlohmann::json notification_json;
+        notification_json["name"] = task_list_name;
+        notification_json["description"] = "REMOVE";
+
+        const auto fds_size = task_list.value()->shared_users.size();
+        notification = std::optional(Notification{.message = "NOTIFY\n" + notification_json.dump() + "\n\n"});
+        notification.value().fds.reserve(fds_size);
+        for (const auto &task_list_user: task_list.value()->shared_users) {
+            if (task_list_user->fd != user.value()->fd) {
+                notification.value().fds.push_back(task_list_user->fd);
+            }
+        }
+    }
+
+    return {.message = "OK\n\n", .notification = notification};
 }
 
 ServiceResponse OperationService::get_all_user_task_lists(const std::string &username) const {

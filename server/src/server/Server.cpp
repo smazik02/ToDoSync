@@ -112,15 +112,17 @@ void Server::run() {
                 auto [response_message, notifications] = operation_service_.service_gateway(
                     resource_method, payload, incoming);
                 if (notifications.has_value()) {
-                    // TODO: execute notifications
+                    for (const auto &fd: notifications.value().fds) {
+                        send(fd, notifications.value().message.c_str(), notifications.value().message.size(), 0);
+                    }
                 }
 
-                send(incoming->fd, response_message.data(), response_message.size(), 0);
+                send(incoming->fd, response_message.c_str(), response_message.size(), 0);
                 std::printf("Response sent to client\n");
             } catch (parser_error &error) {
                 std::printf("Parser error occurred\n");
                 std::string error_msg = error.what();
-                send(incoming->fd, error_msg.data(), error_msg.length(), 0);
+                send(incoming->fd, error_msg.c_str(), error_msg.length(), 0);
                 std::printf("Error message sent to client\n");
             }
 
