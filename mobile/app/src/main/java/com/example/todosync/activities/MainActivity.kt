@@ -2,6 +2,7 @@ package com.example.todosync.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,47 +38,61 @@ class MainActivity : ComponentActivity() {
             var userNameText by remember { mutableStateOf("") }
 
             ToDoSyncTheme {
-                Box(
-                    modifier = Modifier
-                        .windowInsetsPadding(WindowInsets.safeContent)
-                        .fillMaxSize()
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.Center)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.End
+                            .fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.safeContent)
                     ) {
-                        OutlinedTextField(
-                            value = userNameText,
-                            onValueChange = { userNameText = it },
+                        Column(
                             modifier = Modifier
+                                .align(Alignment.Center)
                                 .fillMaxWidth(),
-                            textStyle = MaterialTheme.typography.bodyLarge,
-                            label = {
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            OutlinedTextField(
+                                value = userNameText,
+                                onValueChange = { userNameText = it },
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                textStyle = MaterialTheme.typography.bodyLarge,
+                                label = {
+                                    Text(
+                                        text = "Username",
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            )
+                            Button(
+                                onClick = {
+                                    if (userNameText.isBlank()) {
+                                        Toast.makeText(
+                                            this@MainActivity,
+                                            "Username cannot be blank",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@Button
+                                    }
+                                    Intent(applicationContext, TaskListsActivity::class.java).also {
+                                        startActivity(it)
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(),
+                            ) {
                                 Text(
-                                    text = "Username",
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.bodyLarge
+                                    text = "Login",
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    style = MaterialTheme.typography.labelLarge
                                 )
                             }
-                        )
-                        Button(
-                            onClick = {
-                                Intent(applicationContext, TaskListsActivity::class.java).also {
-                                    startActivity(it)
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(),
-                        ) {
-                            Text(
-                                text = "Login",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.labelLarge
-                            )
                         }
                     }
                 }
+
             }
         }
     }
