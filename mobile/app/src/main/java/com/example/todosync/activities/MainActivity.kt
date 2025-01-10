@@ -1,5 +1,6 @@
 package com.example.todosync.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,9 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.todosync.network.TcpRepository
 import com.example.todosync.ui.theme.ToDoSyncTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
@@ -109,19 +110,25 @@ class MainActivity : ComponentActivity() {
                                             return@Button
                                         }
 
-                                        CoroutineScope(Dispatchers.IO).launch {
+                                        val context = this@MainActivity
+
+                                        scope.launch {
                                             try {
-                                                tcpRepository.login(addressText, userNameText)
+                                                withContext(Dispatchers.IO) {
+                                                    tcpRepository.login(addressText, userNameText)
+                                                }
+
+                                                withContext(Dispatchers.Main) {
+                                                    val intent = Intent(
+                                                        context,
+                                                        TaskListsActivity::class.java
+                                                    )
+                                                    context.startActivity(intent)
+                                                }
                                             } catch (e: IOException) {
                                                 snackbarHostState.showSnackbar(e.message.toString())
                                             }
                                         }
-//                                        Intent(
-//                                            applicationContext,
-//                                            TaskListsActivity::class.java
-//                                        ).also {
-//                                            startActivity(it)
-//                                        }
                                     },
                                     colors = ButtonDefaults.buttonColors(),
                                 ) {
