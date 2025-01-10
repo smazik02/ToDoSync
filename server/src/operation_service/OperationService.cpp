@@ -175,7 +175,7 @@ ServiceResponse OperationService::get_all_user_task_lists(const std::string &use
 ServiceResponse OperationService::create_task_list(const nlohmann::json &payload, const std::string &username) const {
     std::shared_ptr<User> user = repository_->get_user_by_username(username).value();
 
-    const std::vector<ValidatorFieldData> validator_data = {{"username", STRING}};
+    const std::vector<ValidatorFieldData> validator_data = {{"name", STRING}};
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
@@ -197,7 +197,7 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
     repository_->insert_task_list(task_list);
 
     return {
-        .message = "status",
+        .message = "OK\n\n",
         .notification = std::nullopt
     };
 }
