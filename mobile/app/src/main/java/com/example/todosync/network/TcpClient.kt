@@ -11,6 +11,7 @@ import java.io.OutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.Socket
+import java.net.UnknownHostException
 
 object TcpClientSingleton {
     val tcpClient: TcpClient by lazy {
@@ -44,6 +45,9 @@ class TcpClient {
                 statusChannel.send(ConnectionState.CONNECTED)
                 listenForMessages()
             } catch (e: IOException) {
+                e.printStackTrace()
+                statusChannel.send(ConnectionState.DISCONNECTED)
+            } catch (e: UnknownHostException) {
                 e.printStackTrace()
                 statusChannel.send(ConnectionState.DISCONNECTED)
             }

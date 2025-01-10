@@ -3,8 +3,6 @@ package com.example.todosync.network
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -12,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.IOException
+import java.net.UnknownHostException
 
 enum class ConnectionState(val v: String) {
     CONNECTED("CONNECTED"),
@@ -74,6 +73,8 @@ class TcpRepository {
             e.printStackTrace()
             Log.d("CONNECT", e.message.toString())
             Log.d("CONNECT", "Connection fail")
+        } catch (e: UnknownHostException) {
+            e.printStackTrace()
         }
     }
 

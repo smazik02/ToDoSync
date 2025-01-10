@@ -31,10 +31,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.todosync.network.TcpRepository
 import com.example.todosync.ui.theme.ToDoSyncTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
+
+    private val tcpRepository: TcpRepository = TcpRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +49,7 @@ class MainActivity : ComponentActivity() {
             val scope = rememberCoroutineScope()
             val snackbarHostState = remember { SnackbarHostState() }
 
+            var addressText by remember { mutableStateOf("") }
             var userNameText by remember { mutableStateOf("") }
 
             ToDoSyncTheme {
@@ -67,6 +74,20 @@ class MainActivity : ComponentActivity() {
                                 horizontalAlignment = Alignment.End
                             ) {
                                 OutlinedTextField(
+                                    value = addressText,
+                                    onValueChange = { addressText = it },
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    textStyle = MaterialTheme.typography.bodyLarge,
+                                    label = {
+                                        Text(
+                                            text = "Address with port (address:port)",
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                    }
+                                )
+                                OutlinedTextField(
                                     value = userNameText,
                                     onValueChange = { userNameText = it },
                                     modifier = Modifier
@@ -88,12 +109,20 @@ class MainActivity : ComponentActivity() {
                                             }
                                             return@Button
                                         }
-                                        Intent(
-                                            applicationContext,
-                                            TaskListsActivity::class.java
-                                        ).also {
-                                            startActivity(it)
+
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            try {
+                                                tcpRepository.login(addressText, userNameText)
+                                            } catch(e: IOException) {
+                                                snackbarHostState.showSnackbar(e.message.toString())
+                                            }
                                         }
+//                                        Intent(
+//                                            applicationContext,
+//                                            TaskListsActivity::class.java
+//                                        ).also {
+//                                            startActivity(it)
+//                                        }
                                     },
                                     colors = ButtonDefaults.buttonColors(),
                                 ) {
@@ -112,6 +141,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        tcpRepository.disconnect()
+    }
 }
 
 @Composable
