@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.todosync.activities.ui.theme.ToDoSyncTheme
+import com.example.todosync.ui.theme.ToDoSyncTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 class TaskListsActivity : ComponentActivity() {
