@@ -8,20 +8,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.net.UnknownHostException
 
 enum class ConnectionState(val v: String) {
     CONNECTED("CONNECTED"),
     DISCONNECTED("DISCONNECTED")
 }
 
+enum class MessageType { OK, FAIL, NOTIFY }
+
+data class ReceivedMessage(val type: MessageType, val body: JSONObject)
+
 class TcpRepository {
 
     private val tcpClient = TcpClientSingleton.tcpClient
 
-    private val _serverMessages = MutableSharedFlow<String>()
+    private val _serverMessages = MutableSharedFlow<ReceivedMessage>()
     val serverMessages = _serverMessages.asSharedFlow()
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
@@ -32,7 +36,8 @@ class TcpRepository {
     init {
         tcpClient.onMessageReceived = { message ->
             CoroutineScope(Dispatchers.IO).launch {
-                _serverMessages.emit(message)
+                val parsedMessage = parseMessage(message)
+                parsedMessage?.let { _serverMessages.emit(it) }
             }
         }
     }
@@ -56,25 +61,41 @@ class TcpRepository {
         _connectionState.value = ConnectionState.DISCONNECTED
     }
 
+    fun parseMessage(message: String): ReceivedMessage? {
+        Log.d("ParseMessage", message)
+        val (header, body) = message.split("\n")
+        if (header == "" || body == "") {
+            return null
+        }
+
+        val messageType = when (header) {
+            "OK" -> MessageType.OK
+            "FAIL" -> MessageType.FAIL
+            "NOTIFY" -> MessageType.NOTIFY
+            else -> return null
+        }
+
+        try {
+            val messageBody = JSONObject(body)
+            return ReceivedMessage(messageType, messageBody)
+        } catch (e: JSONException) {
+            return null
+        }
+    }
+
     // -- Specialized methods --
     suspend fun login(address: String, login: String) {
-        try {
-            connect(address)
+        connect(address)
 
-            _connectionState.value = tcpClient.statusChannel.receive()
-            if ( _connectionState.value == ConnectionState.CONNECTED) {
-                val body = JSONObject()
-                body.put("username", login)
+        _connectionState.value = tcpClient.statusChannel.receive()
+        if (_connectionState.value == ConnectionState.CONNECTED) {
+            val body = JSONObject()
+            body.put("username", login)
 
-                sendMessage(createRequest(TcpClientMethod.AUTH_LOGIN, body))
-                activeUser = login
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Log.d("CONNECT", e.message.toString())
-            Log.d("CONNECT", "Connection fail")
-        } catch (e: UnknownHostException) {
-            e.printStackTrace()
+            sendMessage(createRequest(TcpClientMethod.AUTH_LOGIN, body))
+            activeUser = login
+        } else {
+            throw IOException("Connection error")
         }
     }
 

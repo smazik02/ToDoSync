@@ -1,6 +1,5 @@
 package com.example.todosync.activities
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -113,7 +112,7 @@ class MainActivity : ComponentActivity() {
                                         CoroutineScope(Dispatchers.IO).launch {
                                             try {
                                                 tcpRepository.login(addressText, userNameText)
-                                            } catch(e: IOException) {
+                                            } catch (e: IOException) {
                                                 snackbarHostState.showSnackbar(e.message.toString())
                                             }
                                         }
