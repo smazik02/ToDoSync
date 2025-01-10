@@ -62,7 +62,7 @@ ServiceResponse OperationService::user_login(const nlohmann::json &payload, User
     user->username = username;
     repository_->remove_not_logged(user->fd);
     repository_->add_user(std::shared_ptr<User>(user));
-    return {.message = "OK\n\n", .notification = std::nullopt};
+    return {.message = "OK\n{}\n\n", .notification = std::nullopt};
 }
 
 ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload, const std::string &username) const {
@@ -142,7 +142,7 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
         }
     }
 
-    return {.message = "OK\n\n", .notification = notification};
+    return {.message = "OK\n{}\n\n", .notification = notification};
 }
 
 ServiceResponse OperationService::remove_task(const nlohmann::json &payload, const std::string &username) const {
@@ -186,7 +186,7 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
         }
     }
 
-    return {.message = "OK\n\n", .notification = notification};
+    return {.message = "OK\n{}\n\n", .notification = notification};
 }
 
 ServiceResponse OperationService::get_all_user_task_lists(const std::string &username) const {
@@ -230,7 +230,7 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
     repository_->insert_task_list(task_list);
 
     return {
-        .message = "OK\n\n",
+        .message = "OK\n{}\n\n",
         .notification = std::nullopt
     };
 }
@@ -258,7 +258,7 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
     task_list.value()->shared_users.insert(user);
 
     return {
-        .message = "OK\n\n",
+        .message = "OK\n{}\n\n",
         .notification = std::nullopt
     };
 }
