@@ -77,9 +77,7 @@ class TaskListsActivity : ComponentActivity() {
                 var buttonText by rememberSaveable { mutableStateOf("") }
 
                 Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 5.dp),
+                    modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.background,
                     bottomBar = {
                         BottomAppBar(
