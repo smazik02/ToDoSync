@@ -42,12 +42,10 @@ class TcpRepository {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            for (state in tcpClient.statusChannel) {
-                _connectionState.value = state
+            _connectionState.value = tcpClient.statusChannel.receive()
 
-                if (state == ConnectionState.DISCONNECTED) {
-                    _serverMessages.emit(ReceivedMessage(MessageType.DISCONNECT, JSONObject()))
-                }
+            if (_connectionState.value == ConnectionState.DISCONNECTED) {
+                _serverMessages.emit(ReceivedMessage(MessageType.DISCONNECT, JSONObject()))
             }
         }
     }
@@ -59,7 +57,9 @@ class TcpRepository {
         val (serverIp, serverPort) = address.split(":")
         tcpClient.serverIp = serverIp
         tcpClient.serverPort = serverPort.toInt()
+        Log.d("TcpRepositoryConnect", "Trying to connect")
         tcpClient.connect()
+        Log.d("TcpRepositoryConnect", "Connected")
     }
 
     fun sendMessage(message: String) {
@@ -95,16 +95,20 @@ class TcpRepository {
 
     // -- Specialized methods --
     suspend fun login(address: String, login: String) {
+        Log.d("TcpRepositoryLogin", "Trying to connect")
         connect(address)
 
+        Log.d("TcpRepositoryLogin", "Before receive")
         _connectionState.value = tcpClient.statusChannel.receive()
         if (_connectionState.value == ConnectionState.CONNECTED) {
+            Log.d("TcpRepositoryLogin", "State connected")
             val body = JSONObject()
             body.put("username", login)
 
             sendMessage(createRequest(TcpClientMethod.AUTH_LOGIN, body))
             activeUser = login
         } else {
+            Log.d("TcpRepositoryLogin", "State disconencted")
             throw IOException("Connection error")
         }
     }

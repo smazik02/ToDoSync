@@ -2,6 +2,7 @@ package com.example.todosync.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -114,13 +115,16 @@ class MainActivity : ComponentActivity() {
                                         scope.launch {
                                             try {
                                                 withContext(Dispatchers.IO) {
+                                                    Log.d("Login Button", "Attempt login")
                                                     tcpRepository.login(
                                                         addressText.trim(),
                                                         userNameText.trim()
                                                     )
+                                                    Log.d("Login Button", "Login succeeds")
                                                 }
 
                                                 withContext(Dispatchers.Main) {
+                                                    Log.d("Login Button", "Switching intent")
                                                     val intent = Intent(
                                                         context,
                                                         TaskListsActivity::class.java

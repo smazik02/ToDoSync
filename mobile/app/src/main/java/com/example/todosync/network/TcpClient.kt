@@ -1,5 +1,6 @@
 package com.example.todosync.network
 
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -47,13 +48,16 @@ class TcpClient {
 
         scope.launch {
             try {
+                Log.d("TcpClientConnect", "Trying to connect")
                 socket = Socket(serverIp, serverPort!!)
                 outputStream = socket?.getOutputStream()
                 inputStream = socket?.getInputStream()
 
+                Log.d("TcpClientConnect", "Connected")
                 statusChannel.send(ConnectionState.CONNECTED)
                 listenForMessages()
             } catch (e: IOException) {
+                Log.d("TcpClientConnect", "Disconnected")
                 e.printStackTrace()
                 statusChannel.send(ConnectionState.DISCONNECTED)
             }
