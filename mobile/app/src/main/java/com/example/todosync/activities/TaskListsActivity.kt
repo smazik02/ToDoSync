@@ -190,7 +190,6 @@ class TaskListsActivity : ComponentActivity() {
 
     override fun getOnBackInvokedDispatcher(): OnBackInvokedDispatcher {
         viewModel.disconnect()
-        moveTaskToBack(true)
         return super.getOnBackInvokedDispatcher()
     }
 

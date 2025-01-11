@@ -14,19 +14,7 @@ import java.io.OutputStream
 import java.net.Socket
 
 object TcpClientSingleton {
-    private var _tcpClient: TcpClient? = null
-    val tcpClient: TcpClient
-        get() {
-            if (_tcpClient == null) {
-                _tcpClient = TcpClient()
-            }
-            return _tcpClient!!
-        }
-
-    fun reset() {
-        _tcpClient?.disconnect()
-        _tcpClient = null
-    }
+    val tcpClient: TcpClient by lazy { TcpClient() }
 }
 
 class TcpClient {
@@ -41,6 +29,7 @@ class TcpClient {
     var serverPort: Int? = null
     var onMessageReceived: ((String) -> Unit)? = null
     var statusChannel = Channel<ConnectionState>(Channel.BUFFERED)
+    var disconnectChannel = Channel<ConnectionState>(Channel.BUFFERED)
 
     fun connect() {
         if (serverIp == null || serverPort == null)
@@ -97,7 +86,7 @@ class TcpClient {
             e.printStackTrace()
         } finally {
             Log.d("TcpClientListen", "Disconnecting")
-            statusChannel.trySend(ConnectionState.DISCONNECTED)
+            disconnectChannel.trySend(ConnectionState.DISCONNECTED)
             disconnect()
         }
     }

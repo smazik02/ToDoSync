@@ -42,9 +42,9 @@ class TcpRepository {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            _connectionState.value = tcpClient.statusChannel.receive()
+            val disconnect = tcpClient.disconnectChannel.receive()
 
-            if (_connectionState.value == ConnectionState.DISCONNECTED) {
+            if (disconnect == ConnectionState.DISCONNECTED) {
                 _serverMessages.emit(ReceivedMessage(MessageType.DISCONNECT, JSONObject()))
             }
         }
