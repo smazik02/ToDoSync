@@ -112,7 +112,10 @@ class MainActivity : ComponentActivity() {
                                         scope.launch {
                                             try {
                                                 withContext(Dispatchers.IO) {
-                                                    tcpRepository.login(addressText, userNameText)
+                                                    tcpRepository.login(
+                                                        addressText.trim(),
+                                                        userNameText.trim()
+                                                    )
                                                 }
 
                                                 withContext(Dispatchers.Main) {

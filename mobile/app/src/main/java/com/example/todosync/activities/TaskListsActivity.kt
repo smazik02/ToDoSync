@@ -162,9 +162,9 @@ class TaskListsActivity : ComponentActivity() {
                                     }
                                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                                         if (buttonText == "JOIN") {
-                                            viewModel.joinTaskList(taskListNameText)
+                                            viewModel.joinTaskList(taskListNameText.trim())
                                         } else {
-                                            val newTaskList = TaskList(taskListNameText)
+                                            val newTaskList = TaskList(taskListNameText.trim())
                                             viewModel.addTaskList(newTaskList)
                                         }
                                         isSheetOpen = false
@@ -182,6 +182,7 @@ class TaskListsActivity : ComponentActivity() {
     }
 
     override fun getOnBackInvokedDispatcher(): OnBackInvokedDispatcher {
+        viewModel.disconnect()
         moveTaskToBack(true)
         return super.getOnBackInvokedDispatcher()
     }

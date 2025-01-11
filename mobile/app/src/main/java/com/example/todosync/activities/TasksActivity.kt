@@ -295,7 +295,7 @@ fun Container() {
                             }
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 val newTask =
-                                    Task(null, taskTitleText, taskDescriptionText)
+                                    Task(null, taskTitleText.trim(), taskDescriptionText.trim())
                                 viewModel.addTask(newTask)
                                 isSheetOpen = false
                             }

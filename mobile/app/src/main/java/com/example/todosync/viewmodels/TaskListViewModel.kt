@@ -79,6 +79,10 @@ class TaskListViewModel(private val tcpRepository: TcpRepository) : ViewModel() 
         viewModelScope.launch { tcpRepository.taskListJoin(taskListName) }
     }
 
+    fun disconnect() {
+        viewModelScope.launch { tcpRepository.disconnect() }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
