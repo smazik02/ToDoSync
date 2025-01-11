@@ -79,8 +79,7 @@ ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload, c
         return handle_error("Task list with that name doesn't exist", "T");
     }
 
-    const auto user = repository_->get_user_by_username(username);
-    if (!task_list.value()->shared_users.contains(user.value())) {
+    if (!task_list.value()->shared_users.contains(username)) {
         return handle_error("You don't belong to this task list!", "T");
     }
 
@@ -119,8 +118,7 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
         return handle_error("Task list with that name doesn't exist", "T");
     }
 
-    const auto user = repository_->get_user_by_username(username);
-    if (!task_list.value()->shared_users.contains(user.value())) {
+    if (!task_list.value()->shared_users.contains(username)) {
         return handle_error("You don't belong to this task list!", "T");
     }
 
@@ -135,10 +133,11 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
         const auto fds_size = task_list.value()->shared_users.size();
         notification = std::optional(Notification{.message = "NOTIFY\n" + notification_json.dump() + "\n\n"});
         notification.value().fds.reserve(fds_size);
-        for (const auto &task_list_user: task_list.value()->shared_users) {
-            if (task_list_user->fd != user.value()->fd) {
-                notification.value().fds.push_back(task_list_user->fd);
-            }
+        for (const auto &task_list_username: task_list.value()->shared_users) {
+            const auto user = repository_->get_user_by_username(task_list_username);
+            if (!user.has_value()) continue;
+
+            notification.value().fds.push_back(user.value()->fd);
         }
     }
 
@@ -166,8 +165,8 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
         return handle_error("Task list with that name doesn't exist", "T");
     }
 
-    const auto user = repository_->get_user_by_username(username);
-    if (!task_list.value()->shared_users.contains(user.value())) {
+
+    if (!task_list.value()->shared_users.contains(username)) {
         return handle_error("You don't belong to this task list!", "T");
     }
 
@@ -182,10 +181,11 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
         const auto fds_size = task_list.value()->shared_users.size();
         notification = std::optional(Notification{.message = "NOTIFY\n" + notification_json.dump() + "\n\n"});
         notification.value().fds.reserve(fds_size);
-        for (const auto &task_list_user: task_list.value()->shared_users) {
-            if (task_list_user->fd != user.value()->fd) {
-                notification.value().fds.push_back(task_list_user->fd);
-            }
+        for (const auto &task_list_username: task_list.value()->shared_users) {
+            const auto user = repository_->get_user_by_username(task_list_username);
+            if (!user.has_value()) continue;
+
+            notification.value().fds.push_back(user.value()->fd);
         }
     }
 
@@ -230,7 +230,7 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
     const auto task_list = std::make_shared<TaskList>(
         tl_name,
         std::unordered_map<int, std::shared_ptr<Task> >(),
-        std::unordered_set({std::move(user)})
+        std::unordered_set({ username })
     );
 
     repository_->insert_task_list(task_list);
@@ -242,8 +242,6 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
 }
 
 ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, const std::string &username) const {
-    const std::shared_ptr<User> user = repository_->get_user_by_username(username).value();
-
     const std::vector<ValidatorFieldData> validator_data = {{"name", STRING}};
     try {
         Validator::validate(payload, validator_data);
@@ -257,11 +255,11 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
         return handle_error("Task list with that name doesn't exist", "TL");
     }
 
-    if (task_list.value()->shared_users.contains(user)) {
+    if (task_list.value()->shared_users.contains(username)) {
         return handle_error("User already belongs to the task list", "TL");
     }
 
-    task_list.value()->shared_users.insert(user);
+    task_list.value()->shared_users.insert(username);
 
     auto response_json = nlohmann::json();
     response_json["source"] = "TL";

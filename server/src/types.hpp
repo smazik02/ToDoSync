@@ -36,7 +36,7 @@ struct User {
 struct TaskList {
     std::string name; // unique
     std::unordered_map<int, std::shared_ptr<Task> > tasks;
-    std::unordered_set<std::shared_ptr<User> > shared_users;
+    std::unordered_set<std::string> shared_users;
 };
 
 
