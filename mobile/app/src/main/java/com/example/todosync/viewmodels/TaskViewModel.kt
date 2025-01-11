@@ -74,8 +74,13 @@ class TaskViewModel(private val tcpRepository: TcpRepository) : ViewModel() {
                     _event.value = message.body.getString("message")
                 }
             }
-
-            MessageType.NOTIFY -> {}
+            MessageType.NOTIFY -> {
+                val taskListNotify = message.body.getString("name")
+                // TODO: show notification based on taskListNotify
+                viewModelScope.launch {
+                    tcpRepository.taskGetAll(uiState.value.taskListName)
+                }
+            }
         }
     }
 

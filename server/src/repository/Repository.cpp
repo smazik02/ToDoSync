@@ -57,12 +57,9 @@ bool Repository::is_task_list_name_taken(const std::string &task_list_name) cons
 std::vector<std::shared_ptr<TaskList> > Repository::get_task_list_by_user(const std::string &username) const {
     std::vector<std::shared_ptr<TaskList> > return_list;
     for (const auto &task_list: task_lists | std::ranges::views::values) {
-        const auto matches_username = [username](const auto &user) { return user->username == username; };
-        const auto matching_user_iter = std::ranges::find_if(task_list->shared_users.begin(),
-                                                             task_list->shared_users.end(),
-                                                             matches_username);
-        if (matching_user_iter != task_list->shared_users.end())
+        if (task_list->shared_users.contains(username)) {
             return_list.push_back(task_list);
+        }
     }
     return return_list;
 }
