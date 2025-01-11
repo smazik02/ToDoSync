@@ -55,7 +55,7 @@ class TaskViewModel(private val tcpRepository: TcpRepository) : ViewModel() {
                             taskList = tasks
                         )
                     }
-                } else {
+                } else if (message.body.has("source") && message.body.getString("source") == "T") {
                     viewModelScope.launch {
                         tcpRepository.taskGetAll(uiState.value.taskListName)
                     }
