@@ -64,7 +64,13 @@ class TaskListViewModel(private val tcpRepository: TcpRepository) : ViewModel() 
                 }
             }
 
-            MessageType.NOTIFY -> {}
+            MessageType.NOTIFY -> {
+                val taskListName = message.body.getString("name")
+                val description = message.body.getString("description")
+                val arr = description.split(" ").toMutableList()
+                arr.add(3, "\"$taskListName\"")
+                _event.value = arr.joinToString(" ")
+            }
         }
     }
 
