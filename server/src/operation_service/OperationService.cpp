@@ -142,7 +142,9 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
         }
     }
 
-    return {.message = "OK\n{}\n\n", .notification = notification};
+    auto response_json = nlohmann::json();
+    response_json["source"] = "T";
+    return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = notification};
 }
 
 ServiceResponse OperationService::remove_task(const nlohmann::json &payload, const std::string &username) const {
@@ -186,7 +188,9 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
         }
     }
 
-    return {.message = "OK\n{}\n\n", .notification = notification};
+    auto response_json = nlohmann::json();
+    response_json["source"] = "T";
+    return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = notification};
 }
 
 ServiceResponse OperationService::get_all_user_task_lists(const std::string &username) const {
@@ -229,10 +233,9 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
 
     repository_->insert_task_list(task_list);
 
-    return {
-        .message = "OK\n{}\n\n",
-        .notification = std::nullopt
-    };
+    auto response_json = nlohmann::json();
+    response_json["source"] = "T";
+    return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 
 ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, const std::string &username) const {
@@ -257,10 +260,9 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
 
     task_list.value()->shared_users.insert(user);
 
-    return {
-        .message = "OK\n{}\n\n",
-        .notification = std::nullopt
-    };
+    auto response_json = nlohmann::json();
+    response_json["source"] = "T";
+    return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 
 ServiceResponse OperationService::handle_error(const std::string &error_message, const std::string &source) {
