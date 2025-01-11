@@ -56,7 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Observer
 import com.example.todosync.models.TaskList
 import com.example.todosync.ui.theme.ToDoSyncTheme
 import com.example.todosync.viewmodels.TaskListViewModel
@@ -71,11 +70,11 @@ class TaskListsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         viewModel.loadTaskLists()
 
-        viewModel.event.observe(this, Observer { message ->
+        viewModel.event.observe(this) { message ->
             message?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
-        })
+        }
 
         enableEdgeToEdge()
         setContent {

@@ -22,14 +22,14 @@
 - Body: {"name": String}
 #### OK Response
 - Header: OK
-- Body: {"source": "TL"}
+- Body: {"source": "TL", "message": String}
 ### Join
 #### Request
 - Header: TL|JOIN
 - Body: {"name": String}
 #### OK Response
 - Header: OK
-- Body: {"source": "TL"}
+- Body: {"source": "TL", "message": String}
 
 ## Tasks
 ### Get All
@@ -45,18 +45,18 @@
 - Body: {"task_list_name": String, "task_name": String, "task_description": String}
 #### OK Response
 - Header: OK
-- Body: {"source": "T"}
+- Body: {"source": "T", "message": String}
 ### Remove
 #### Request
 - Header: T|DELETE
 - Body: {"task_id": Int, "task_list_name": String}
 #### OK Response
 - Header: OK
-- Body: {"source": "T"}
+- Body: {"source": "T", "message": String}
 
 ## Errors
 - Header: FAIL
-- Body: {"source": "AUTH"/"T"/"TL"}
+- Body: {"source": "AUTH"/"T"/"TL", "message": String}
 
 ## Notifications
 - Header: NOTIFY

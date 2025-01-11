@@ -50,6 +50,7 @@ class TaskListViewModel(private val tcpRepository: TcpRepository) : ViewModel() 
                     _uiState.update { TaskListUiState(taskLists) }
                 } else if (message.body.has("source") && message.body.getString("source") == "TL") {
                     viewModelScope.launch { tcpRepository.taskListGetAll() }
+                    _event.value = message.body.getString("message")
                 }
             }
 

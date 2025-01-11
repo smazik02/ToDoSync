@@ -144,6 +144,7 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
 
     auto response_json = nlohmann::json();
     response_json["source"] = "T";
+    response_json["message"] = "Task created";
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = notification};
 }
 
@@ -190,6 +191,7 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
 
     auto response_json = nlohmann::json();
     response_json["source"] = "T";
+    response_json["message"] = "Task removed";
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = notification};
 }
 
@@ -235,6 +237,7 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
 
     auto response_json = nlohmann::json();
     response_json["source"] = "TL";
+    response_json["message"] = "Task list created";
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 
@@ -262,6 +265,7 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
 
     auto response_json = nlohmann::json();
     response_json["source"] = "TL";
+    response_json["message"] = "Joined task list";
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 

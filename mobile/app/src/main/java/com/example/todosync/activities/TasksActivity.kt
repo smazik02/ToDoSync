@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 
 class TasksActivity : ComponentActivity() {
 
-    private val viewModel: TaskViewModel by viewModels{ TaskViewModel.Factory }
+    private val viewModel: TaskViewModel by viewModels { TaskViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +82,12 @@ class TasksActivity : ComponentActivity() {
             @Suppress("DEPRECATION")
             viewModel.loadTasks(intent.getSerializableExtra("EXTRA_TLNAME") as String)
         }
+        viewModel.event.observe(this) { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         setContent {
             ToDoSyncTheme {
                 Container()

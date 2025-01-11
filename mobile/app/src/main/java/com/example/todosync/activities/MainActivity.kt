@@ -2,6 +2,7 @@ package com.example.todosync.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,8 +19,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,16 +46,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val scope = rememberCoroutineScope()
-            val snackbarHostState = remember { SnackbarHostState() }
 
             var addressText by remember { mutableStateOf("") }
             var userNameText by remember { mutableStateOf("") }
 
             ToDoSyncTheme {
-                Scaffold(
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
@@ -104,9 +99,11 @@ class MainActivity : ComponentActivity() {
                                 Button(
                                     onClick = {
                                         if (userNameText.isBlank()) {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("Username cannot be blank")
-                                            }
+                                            Toast.makeText(
+                                                this@MainActivity,
+                                                "Username cannot be blank",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                             return@Button
                                         }
 
@@ -126,7 +123,11 @@ class MainActivity : ComponentActivity() {
                                                     context.startActivity(intent)
                                                 }
                                             } catch (e: IOException) {
-                                                snackbarHostState.showSnackbar(e.message.toString())
+                                                Toast.makeText(
+                                                    this@MainActivity,
+                                                    e.message,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
                                         }
                                     },
