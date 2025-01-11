@@ -12,11 +12,11 @@ OperationService::OperationService(std::shared_ptr<Repository> repository) {
 ServiceResponse OperationService::service_gateway(const ResourceMethod resource_method, const nlohmann::json &payload,
                                                   User *user) const {
     if (!repository_->is_user_logged(user->fd) && resource_method != AUTH_LOGIN) {
-        return handle_error("Not logged");
+        return handle_error("Not logged", "AUTH");
     }
 
     if (repository_->is_user_logged(user->fd) && resource_method == AUTH_LOGIN) {
-        return handle_error("You are already logged in");
+        return handle_error("You are already logged in", "AUTH");
     }
 
     switch (resource_method) {
@@ -51,12 +51,12 @@ ServiceResponse OperationService::user_login(const nlohmann::json &payload, User
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
-        return handle_error(e.what());
+        return handle_error(e.what(), "AUTH");
     }
 
     auto username = payload.at("username").get<std::string>();
     if (repository_->is_username_taken(username)) {
-        return handle_error("User with that name already exists");
+        return handle_error("User with that name already exists", "AUTH");
     }
 
     user->username = username;
@@ -70,18 +70,18 @@ ServiceResponse OperationService::get_all_tasks(const nlohmann::json &payload, c
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
-        return handle_error(e.what());
+        return handle_error(e.what(), "T");
     }
 
     const auto task_list_name = payload.at("task_list_name").get<std::string>();
     const auto task_list = repository_->get_task_list_by_name(task_list_name);
     if (!task_list.has_value()) {
-        return handle_error("Task list with that name doesn't exist");
+        return handle_error("Task list with that name doesn't exist", "T");
     }
 
     const auto user = repository_->get_user_by_username(username);
     if (!task_list.value()->shared_users.contains(user.value())) {
-        return handle_error("You don't belong to this task list!");
+        return handle_error("You don't belong to this task list!", "T");
     }
 
     auto response_json = nlohmann::json();
@@ -104,7 +104,7 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
-        return handle_error(e.what());
+        return handle_error(e.what(), "T");
     }
 
     auto task = std::make_shared<Task>(
@@ -116,12 +116,12 @@ ServiceResponse OperationService::create_task(const nlohmann::json &payload, con
     const auto task_list_name = payload.at("task_list_name").get<std::string>();
     const auto task_list = repository_->get_task_list_by_name(task_list_name);
     if (!task_list.has_value()) {
-        return handle_error("Task list with that name doesn't exist");
+        return handle_error("Task list with that name doesn't exist", "T");
     }
 
     const auto user = repository_->get_user_by_username(username);
     if (!task_list.value()->shared_users.contains(user.value())) {
-        return handle_error("You don't belong to this task list!");
+        return handle_error("You don't belong to this task list!", "T");
     }
 
     task_list.value()->tasks.emplace(task->id, task);
@@ -152,7 +152,7 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
-        return handle_error(e.what());
+        return handle_error(e.what(), "T");
     }
 
     const auto task_id = payload.at("task_id").get<int>();
@@ -160,12 +160,12 @@ ServiceResponse OperationService::remove_task(const nlohmann::json &payload, con
     const auto task_list = repository_->get_task_list_by_name(task_list_name);
 
     if (!task_list.has_value()) {
-        return handle_error("Task list with that name doesn't exist");
+        return handle_error("Task list with that name doesn't exist", "T");
     }
 
     const auto user = repository_->get_user_by_username(username);
     if (!task_list.value()->shared_users.contains(user.value())) {
-        return handle_error("You don't belong to this task list!");
+        return handle_error("You don't belong to this task list!", "T");
     }
 
     task_list.value()->tasks.erase(task_id);
@@ -212,13 +212,13 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
-        return handle_error(e.what());
+        return handle_error(e.what(), "TL");
     }
 
     auto tl_name = payload.at("name").get<std::string>();
 
     if (repository_->is_task_list_name_taken(tl_name)) {
-        return handle_error("Task list with that name already exists");
+        return handle_error("Task list with that name already exists", "TL");
     }
 
     const auto task_list = std::make_shared<TaskList>(
@@ -242,17 +242,17 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
     try {
         Validator::validate(payload, validator_data);
     } catch (validator_error &e) {
-        return handle_error(e.what());
+        return handle_error(e.what(), "TL");
     }
 
     const auto tl_name = payload.at("name").get<std::string>();
     const auto task_list = repository_->get_task_list_by_name(tl_name);
     if (!task_list.has_value()) {
-        return handle_error("Task list with that name doesn't exist");
+        return handle_error("Task list with that name doesn't exist", "TL");
     }
 
     if (task_list.value()->shared_users.contains(user)) {
-        return handle_error("User already belongs to the task list");
+        return handle_error("User already belongs to the task list", "TL");
     }
 
     task_list.value()->shared_users.insert(user);
@@ -263,8 +263,9 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
     };
 }
 
-ServiceResponse OperationService::handle_error(const std::string &error_message) {
+ServiceResponse OperationService::handle_error(const std::string &error_message, const std::string &source) {
     nlohmann::json error_json;
     error_json["message"] = error_message;
+    error_json["source"] = source;
     return {.message = "FAIL\n" + error_json.dump() + "\n\n", .notification = std::nullopt};
 }

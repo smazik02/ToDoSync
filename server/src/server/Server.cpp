@@ -126,7 +126,7 @@ void Server::run() {
                 std::printf("Error message sent to client\n");
             }
 
-            std::printf("%s", message.c_str());
+            std::printf("%s\n", message.c_str());
         }
     }
 }
