@@ -61,7 +61,7 @@ class TcpRepository {
         _connectionState.value = ConnectionState.DISCONNECTED
     }
 
-    fun parseMessage(message: String): ReceivedMessage? {
+    private fun parseMessage(message: String): ReceivedMessage? {
         Log.d("ParseMessage", message)
         val (header, body) = message.split("\n")
         if (header == "" || body == "") {
@@ -99,8 +99,10 @@ class TcpRepository {
         }
     }
 
-    suspend fun taskGetAll() {
-        sendMessage(createRequest(TcpClientMethod.T_GET_ALL))
+    suspend fun taskGetAll(taskListName: String) {
+        val body = JSONObject()
+        body.put("task_list_name", taskListName)
+        sendMessage(createRequest(TcpClientMethod.T_GET_ALL, body))
     }
 
     suspend fun taskCreate(
@@ -115,7 +117,7 @@ class TcpRepository {
         sendMessage(createRequest(TcpClientMethod.T_CREATE, body))
     }
 
-    suspend fun taskDelete(taskId: String, taskListName: String) {
+    suspend fun taskDelete(taskId: Int, taskListName: String) {
         val body = JSONObject()
         body.put("task_list_name", taskListName)
         body.put("task_id", taskId)

@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 
 class TasksActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<TaskViewModel>()
+    private val viewModel: TaskViewModel by viewModels{ TaskViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +88,21 @@ class TasksActivity : ComponentActivity() {
             }
         }
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            viewModel.loadTasks(
+//                intent.getSerializableExtra(
+//                    "EXTRA_TLNAME",
+//                    String::class.java
+//                ) as String
+//            )
+//        } else {
+//            @Suppress("DEPRECATION")
+//            viewModel.loadTasks(intent.getSerializableExtra("EXTRA_TLNAME") as String)
+//        }
+//    }
 
 }
 
@@ -287,11 +302,3 @@ fun Container() {
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun ContainerPreview() {
-//    ToDoSyncTheme {
-//        Container()
-//    }
-//}
