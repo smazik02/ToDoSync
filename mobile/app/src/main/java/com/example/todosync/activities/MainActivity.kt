@@ -31,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.todosync.network.TcpRepository
+import com.example.todosync.ToDoSyncApplication
 import com.example.todosync.ui.theme.ToDoSyncTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ import java.io.IOException
 
 class MainActivity : ComponentActivity() {
 
-    private val tcpRepository: TcpRepository = TcpRepository()
+    private val tcpRepository by lazy { (application as ToDoSyncApplication).tcpRepository }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
