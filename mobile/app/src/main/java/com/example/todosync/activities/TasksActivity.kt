@@ -103,21 +103,6 @@ class TasksActivity : ComponentActivity() {
         }
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            viewModel.loadTasks(
-//                intent.getSerializableExtra(
-//                    "EXTRA_TLNAME",
-//                    String::class.java
-//                ) as String
-//            )
-//        } else {
-//            @Suppress("DEPRECATION")
-//            viewModel.loadTasks(intent.getSerializableExtra("EXTRA_TLNAME") as String)
-//        }
-//    }
-
 }
 
 @Composable

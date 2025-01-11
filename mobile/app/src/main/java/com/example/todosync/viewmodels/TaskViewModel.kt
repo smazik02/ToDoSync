@@ -94,9 +94,7 @@ class TaskViewModel(private val tcpRepository: TcpRepository) : ViewModel() {
     fun loadTasks(taskListName: String) {
         viewModelScope.launch {
             _uiState.update { currentState ->
-                currentState.copy(
-                    taskListName
-                )
+                currentState.copy(taskListName = taskListName)
             }
 
             tcpRepository.taskGetAll(taskListName)
@@ -124,6 +122,7 @@ class TaskViewModel(private val tcpRepository: TcpRepository) : ViewModel() {
 
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val application = checkNotNull(extras[APPLICATION_KEY])
                 return TaskViewModel((application as ToDoSyncApplication).tcpRepository) as T

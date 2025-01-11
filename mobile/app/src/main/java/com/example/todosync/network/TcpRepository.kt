@@ -4,18 +4,13 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
-enum class ConnectionState(val v: String) {
-    CONNECTED("CONNECTED"),
-    DISCONNECTED("DISCONNECTED")
-}
+enum class ConnectionState { CONNECTED, DISCONNECTED }
 
 enum class MessageType { OK, FAIL, NOTIFY, DISCONNECT }
 
@@ -27,9 +22,6 @@ class TcpRepository {
 
     private val _serverMessages = MutableSharedFlow<ReceivedMessage>()
     val serverMessages = _serverMessages.asSharedFlow()
-
-    private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
-    val connectionState = _connectionState.asStateFlow()
 
     private var activeUser: String? = null
 
@@ -50,7 +42,7 @@ class TcpRepository {
         }
     }
 
-    fun connect(address: String) {
+    private fun connect(address: String) {
         if (!address.contains(":"))
             throw IOException("Cannot parse address")
 
@@ -62,13 +54,12 @@ class TcpRepository {
         Log.d("TcpRepositoryConnect", "Connected")
     }
 
-    fun sendMessage(message: String) {
+    private fun sendMessage(message: String) {
         tcpClient.sendMessage(message)
     }
 
     fun disconnect() {
         tcpClient.disconnect()
-        _connectionState.value = ConnectionState.DISCONNECTED
     }
 
     private fun parseMessage(message: String): ReceivedMessage? {
@@ -99,8 +90,8 @@ class TcpRepository {
         connect(address)
 
         Log.d("TcpRepositoryLogin", "Before receive")
-        _connectionState.value = tcpClient.statusChannel.receive()
-        if (_connectionState.value == ConnectionState.CONNECTED) {
+        val connectionState = tcpClient.statusChannel.receive()
+        if (connectionState == ConnectionState.CONNECTED) {
             Log.d("TcpRepositoryLogin", "State connected")
             val body = JSONObject()
             body.put("username", login)
@@ -108,18 +99,18 @@ class TcpRepository {
             sendMessage(createRequest(TcpClientMethod.AUTH_LOGIN, body))
             activeUser = login
         } else {
-            Log.d("TcpRepositoryLogin", "State disconencted")
+            Log.d("TcpRepositoryLogin", "State disconnected")
             throw IOException("Connection error")
         }
     }
 
-    suspend fun taskGetAll(taskListName: String) {
+    fun taskGetAll(taskListName: String) {
         val body = JSONObject()
         body.put("task_list_name", taskListName)
         sendMessage(createRequest(TcpClientMethod.T_GET_ALL, body))
     }
 
-    suspend fun taskCreate(
+    fun taskCreate(
         taskListName: String,
         taskName: String,
         taskDescription: String
@@ -131,24 +122,24 @@ class TcpRepository {
         sendMessage(createRequest(TcpClientMethod.T_CREATE, body))
     }
 
-    suspend fun taskDelete(taskId: Int, taskListName: String) {
+    fun taskDelete(taskId: Int, taskListName: String) {
         val body = JSONObject()
         body.put("task_list_name", taskListName)
         body.put("task_id", taskId)
         sendMessage(createRequest(TcpClientMethod.T_DELETE, body))
     }
 
-    suspend fun taskListGetAll() {
+    fun taskListGetAll() {
         sendMessage(createRequest(TcpClientMethod.TL_GET_ALL))
     }
 
-    suspend fun taskListCreate(name: String) {
+    fun taskListCreate(name: String) {
         val body = JSONObject()
         body.put("name", name)
         sendMessage(createRequest(TcpClientMethod.TL_CREATE, body))
     }
 
-    suspend fun taskListJoin(name: String) {
+    fun taskListJoin(name: String) {
         val body = JSONObject()
         body.put("name", name)
         sendMessage(createRequest(TcpClientMethod.TL_JOIN, body))

@@ -259,11 +259,3 @@ fun TaskListCard(taskList: TaskList) {
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun GreetingPreview2() {
-//    ToDoSyncTheme {
-//        TaskListCard("Task list 1")
-//    }
-//}
