@@ -40,7 +40,7 @@ class TcpClient {
     var serverIp: String? = null
     var serverPort: Int? = null
     var onMessageReceived: ((String) -> Unit)? = null
-    var statusChannel = Channel<ConnectionState>()
+    var statusChannel = Channel<ConnectionState>(Channel.BUFFERED)
 
     fun connect() {
         if (serverIp == null || serverPort == null)
@@ -55,6 +55,7 @@ class TcpClient {
 
                 Log.d("TcpClientConnect", "Connected")
                 statusChannel.send(ConnectionState.CONNECTED)
+                Log.d("TcpClientConnect", "Start listening")
                 listenForMessages()
             } catch (e: IOException) {
                 Log.d("TcpClientConnect", "Disconnected")
@@ -95,6 +96,7 @@ class TcpClient {
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
+            Log.d("TcpClientListen", "Disconnecting")
             statusChannel.trySend(ConnectionState.DISCONNECTED)
             disconnect()
         }
