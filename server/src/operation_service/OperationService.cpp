@@ -234,7 +234,7 @@ ServiceResponse OperationService::create_task_list(const nlohmann::json &payload
     repository_->insert_task_list(task_list);
 
     auto response_json = nlohmann::json();
-    response_json["source"] = "T";
+    response_json["source"] = "TL";
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 
@@ -261,7 +261,7 @@ ServiceResponse OperationService::join_task_list(const nlohmann::json &payload, 
     task_list.value()->shared_users.insert(user);
 
     auto response_json = nlohmann::json();
-    response_json["source"] = "T";
+    response_json["source"] = "TL";
     return {.message = "OK\n" + response_json.dump() + "\n\n", .notification = std::nullopt};
 }
 
