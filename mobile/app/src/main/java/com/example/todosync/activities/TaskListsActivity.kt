@@ -56,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Observer
 import com.example.todosync.models.TaskList
 import com.example.todosync.ui.theme.ToDoSyncTheme
 import com.example.todosync.viewmodels.TaskListViewModel
@@ -64,10 +65,18 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 class TaskListsActivity : ComponentActivity() {
 
-    private val viewModel by viewModels<TaskListViewModel>()
+    private val viewModel: TaskListViewModel by viewModels { TaskListViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.loadTaskLists()
+
+        viewModel.event.observe(this, Observer { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
+        })
+
         enableEdgeToEdge()
         setContent {
             ToDoSyncTheme {
