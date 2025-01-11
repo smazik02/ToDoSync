@@ -75,6 +75,10 @@ class TaskViewModel(private val tcpRepository: TcpRepository) : ViewModel() {
                 }
             }
 
+            MessageType.DISCONNECT -> {
+                _event.value = "DISCONNECT"
+            }
+
             MessageType.NOTIFY -> {
                 val taskListName = message.body.getString("name")
                 if (taskListName == uiState.value.taskListName) {

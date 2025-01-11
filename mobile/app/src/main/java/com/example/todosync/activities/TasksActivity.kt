@@ -1,6 +1,7 @@
 package com.example.todosync.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -84,6 +85,13 @@ class TasksActivity : ComponentActivity() {
         }
         viewModel.event.observe(this) { message ->
             message?.let {
+                if (it == "DISCONNECT") {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
+                    return@let
+                }
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }

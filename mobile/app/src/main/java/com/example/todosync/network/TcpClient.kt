@@ -13,8 +13,18 @@ import java.io.OutputStream
 import java.net.Socket
 
 object TcpClientSingleton {
-    val tcpClient: TcpClient by lazy {
-        TcpClient()
+    private var _tcpClient: TcpClient? = null
+    val tcpClient: TcpClient
+        get() {
+            if (_tcpClient == null) {
+                _tcpClient = TcpClient()
+            }
+            return _tcpClient!!
+        }
+
+    fun reset() {
+        _tcpClient?.disconnect()
+        _tcpClient = null
     }
 }
 
@@ -61,7 +71,7 @@ class TcpClient {
         }
     }
 
-    fun listenForMessages() {
+    private fun listenForMessages() {
         try {
             val reader = BufferedReader(InputStreamReader(inputStream))
             val buffer = StringBuilder()
@@ -81,6 +91,7 @@ class TcpClient {
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
+            statusChannel.trySend(ConnectionState.DISCONNECTED)
             disconnect()
         }
     }
@@ -88,6 +99,9 @@ class TcpClient {
     fun disconnect() {
         try {
             socket?.close()
+            outputStream = null
+            inputStream = null
+            socket = null
         } catch (e: IOException) {
             e.printStackTrace()
         }

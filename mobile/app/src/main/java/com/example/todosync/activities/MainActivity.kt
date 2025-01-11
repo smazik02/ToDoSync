@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.todosync.ToDoSyncApplication
+import com.example.todosync.network.TcpClientSingleton
 import com.example.todosync.ui.theme.ToDoSyncTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        TcpClientSingleton.reset()
         setContent {
             val scope = rememberCoroutineScope()
 

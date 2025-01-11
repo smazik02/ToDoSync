@@ -17,7 +17,7 @@ enum class ConnectionState(val v: String) {
     DISCONNECTED("DISCONNECTED")
 }
 
-enum class MessageType { OK, FAIL, NOTIFY }
+enum class MessageType { OK, FAIL, NOTIFY, DISCONNECT }
 
 data class ReceivedMessage(val type: MessageType, val body: JSONObject)
 
@@ -38,6 +38,16 @@ class TcpRepository {
             CoroutineScope(Dispatchers.IO).launch {
                 val parsedMessage = parseMessage(message)
                 parsedMessage?.let { _serverMessages.emit(it) }
+            }
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            for (state in tcpClient.statusChannel) {
+                _connectionState.value = state
+
+                if (state == ConnectionState.DISCONNECTED) {
+                    _serverMessages.emit(ReceivedMessage(MessageType.DISCONNECT, JSONObject()))
+                }
             }
         }
     }

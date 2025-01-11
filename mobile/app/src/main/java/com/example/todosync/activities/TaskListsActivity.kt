@@ -72,6 +72,13 @@ class TaskListsActivity : ComponentActivity() {
 
         viewModel.event.observe(this) { message ->
             message?.let {
+                if (it == "DISCONNECT") {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
+                    return@let
+                }
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }

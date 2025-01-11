@@ -54,6 +54,10 @@ class TaskListViewModel(private val tcpRepository: TcpRepository) : ViewModel() 
                 }
             }
 
+            MessageType.DISCONNECT -> {
+                _event.value = "DISCONNECT"
+            }
+
             MessageType.FAIL -> {
                 if (message.body.has("source") && message.body.getString("source") == "TL") {
                     _event.value = message.body.getString("message")
