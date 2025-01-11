@@ -60,10 +60,7 @@ class TaskListViewModel(private val tcpRepository: TcpRepository) : ViewModel() 
                 }
             }
 
-            MessageType.NOTIFY -> {
-                val taskListNotify = message.body.getString("name")
-                // TODO: show notification
-            }
+            MessageType.NOTIFY -> {}
         }
     }
 
