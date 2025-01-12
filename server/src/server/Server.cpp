@@ -52,9 +52,6 @@ Server::~Server() {
 
 void Server::run() {
     while (true) {
-        sockaddr_in user_addr{};
-        socklen_t user_addr_len = sizeof user_addr;
-
         if (epoll_wait(epoll_fd, &events, 1, -1) == -1)
             throw server_error("epoll wait error");
 
@@ -71,19 +68,25 @@ void Server::run() {
         }
 
         if (incoming->fd == socket_fd) {
+            sockaddr_in user_addr{};
+            socklen_t user_addr_len = sizeof user_addr;
+
             const int user_fd = accept(incoming->fd, reinterpret_cast<sockaddr *>(&user_addr), &user_addr_len);
             if (user_fd == -1)
                 throw server_error("accept error");
 
             const auto user = new User{.fd = user_fd};
-            // const auto user = std::make_shared<User>(user_fd, "", "", ""); debug leftover
             repository_->append_not_logged(user_fd);
 
             epoll_event ee = {.events = EPOLLIN, .data = {.ptr = user}};
             epoll_ctl(epoll_fd, EPOLL_CTL_ADD, user_fd, &ee);
 
-            getnameinfo(reinterpret_cast<sockaddr *>(&user_addr), user_addr_len, user->address.data(), NI_MAXHOST,
-                        user->port.data(), NI_MAXSERV, 0);
+            char host_buf[NI_MAXHOST]{};
+            char port_buf[NI_MAXSERV]{};
+            getnameinfo(reinterpret_cast<sockaddr *>(&user_addr), user_addr_len, host_buf, NI_MAXHOST, port_buf,
+                        NI_MAXSERV, 0);
+            user->address = std::string(host_buf);
+            user->port = std::string(port_buf);
             std::printf("New connection from %s:%s (fd: %d)\n", user->address.c_str(), user->port.c_str(), user->fd);
             continue;
         }
