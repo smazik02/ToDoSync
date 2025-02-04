@@ -7,9 +7,10 @@
 
 class Validator {
 public:
-    static void validate(const nlohmann::json &input, const std::vector<ValidatorFieldData> &validator_data);
+    static void validate(const nlohmann::json& input,
+                         const std::vector<ValidatorFieldData>& validator_data);
 
-    static const char *field_type_string(FieldType field_type);
+    static const char* field_type_string(FieldType field_type);
 };
 
 

@@ -3,25 +3,24 @@
 
 #include <exception>
 #include <json.hpp>
+#include <utility>
 
 class server_error final : public std::exception {
-    const char *message;
+    const char* message;
 
 public:
-    explicit server_error(const char *message): message(message) {
-    }
+    explicit server_error(const char* message): message(message) {}
 
-    const char *what() {
+    const char* what() {
         return message;
     }
 };
 
 class parser_error final : public std::exception {
-    const char *message;
+    const char* message;
 
 public:
-    explicit parser_error(const char *message): message(message) {
-    }
+    explicit parser_error(const char* message): message(message) {}
 
     std::string what() {
         nlohmann::json body;
@@ -34,10 +33,10 @@ class validator_error final : public std::exception {
     std::string message;
 
 public:
-    explicit validator_error(const std::string &message): message(message) {
-    }
+    explicit
+    validator_error(std::string message): message(std::move(message)) {}
 
-    std::string &what() {
+    std::string& what() {
         return message;
     }
 };

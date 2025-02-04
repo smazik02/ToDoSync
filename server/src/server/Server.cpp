@@ -10,7 +10,8 @@
 #include "../types.hpp"
 
 Server::Server(const int port): repository_(std::make_shared<Repository>()),
-                                operation_service_(OperationService(repository_)) {
+                                operation_service_(
+                                    OperationService(repository_)) {
     socket_fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_fd == -1)
         throw server_error("socket create error");
@@ -25,7 +26,8 @@ Server::Server(const int port): repository_(std::make_shared<Repository>()),
     };
     address_len = sizeof(address);
 
-    if (bind(socket_fd, reinterpret_cast<sockaddr *>(&address), address_len) == -1)
+    if (bind(socket_fd, reinterpret_cast<sockaddr*>(&address),
+             address_len) == -1)
         throw server_error("bind error");
 
     if (listen(socket_fd, SOMAXCONN) == -1)
@@ -55,7 +57,7 @@ void Server::run() {
         if (epoll_wait(epoll_fd, &events, 1, -1) == -1)
             throw server_error("epoll wait error");
 
-        const auto incoming = static_cast<User *>(events.data.ptr);
+        const auto incoming = static_cast<User*>(events.data.ptr);
 
         if (incoming->fd == STDIN_FILENO) {
             std::string input;
@@ -71,7 +73,9 @@ void Server::run() {
             sockaddr_in user_addr{};
             socklen_t user_addr_len = sizeof user_addr;
 
-            const int user_fd = accept(incoming->fd, reinterpret_cast<sockaddr *>(&user_addr), &user_addr_len);
+            const int user_fd = accept(incoming->fd,
+                                       reinterpret_cast<sockaddr*>(&user_addr),
+                                       &user_addr_len);
             if (user_fd == -1)
                 throw server_error("accept error");
 
@@ -83,11 +87,13 @@ void Server::run() {
 
             char host_buf[NI_MAXHOST]{};
             char port_buf[NI_MAXSERV]{};
-            getnameinfo(reinterpret_cast<sockaddr *>(&user_addr), user_addr_len, host_buf, NI_MAXHOST, port_buf,
+            getnameinfo(reinterpret_cast<sockaddr*>(&user_addr), user_addr_len,
+                        host_buf, NI_MAXHOST, port_buf,
                         NI_MAXSERV, 0);
             user->address = std::string(host_buf);
             user->port = std::string(port_buf);
-            std::printf("New connection from %s:%s (fd: %d)\n", user->address.c_str(), user->port.c_str(), user->fd);
+            std::printf("New connection from %s:%s (fd: %d)\n",
+                        user->address.c_str(), user->port.c_str(), user->fd);
             continue;
         }
 
@@ -109,20 +115,24 @@ void Server::run() {
         incoming->buffer = messages.at(messages.size() - 1);
         messages.pop_back();
 
-        for (const auto &message: messages) {
+        for (const auto& message : messages) {
             try {
-                auto [resource_method, payload] = Parser::process_request(message);
-                auto [response_message, notifications] = operation_service_.service_gateway(
-                    resource_method, payload, incoming);
+                auto [resource_method, payload] = Parser::process_request(
+                    message);
+                auto [response_message, notifications] = operation_service_.
+                    service_gateway(
+                        resource_method, payload, incoming);
                 if (notifications.has_value()) {
-                    for (const auto &fd: notifications.value().fds) {
-                        send(fd, notifications.value().message.c_str(), notifications.value().message.size(), 0);
+                    for (const auto& fd : notifications.value().fds) {
+                        send(fd, notifications.value().message.c_str(),
+                             notifications.value().message.size(), 0);
                     }
                 }
 
-                send(incoming->fd, response_message.c_str(), response_message.size(), 0);
+                send(incoming->fd, response_message.c_str(),
+                     response_message.size(), 0);
                 std::printf("Response sent to client\n");
-            } catch (parser_error &error) {
+            } catch (parser_error& error) {
                 std::printf("Parser error occurred\n");
                 std::string error_msg = error.what();
                 send(incoming->fd, error_msg.c_str(), error_msg.length(), 0);

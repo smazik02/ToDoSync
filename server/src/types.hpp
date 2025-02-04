@@ -25,7 +25,7 @@ struct User {
     std::string buffer{};
 
     std::string username; // unique
-    std::queue<std::shared_ptr<Task> > task_notification_queue;
+    std::queue<std::shared_ptr<Task>> task_notification_queue;
 
     ~User() {
         shutdown(fd, SHUT_RDWR);
@@ -35,7 +35,7 @@ struct User {
 
 struct TaskList {
     std::string name; // unique
-    std::unordered_map<int, std::shared_ptr<Task> > tasks;
+    std::unordered_map<int, std::shared_ptr<Task>> tasks;
     std::unordered_set<std::string> shared_users;
 };
 

@@ -3,7 +3,8 @@
 #include "../exceptions.hpp"
 #include "../types.hpp"
 
-std::vector<std::string> Parser::split(const std::string &s, const std::string &delimiter) {
+std::vector<std::string> Parser::split(const std::string& s,
+                                       const std::string& delimiter) {
     size_t pos_start = 0, pos_end;
     const size_t delim_len = delimiter.length();
     std::vector<std::string> res;
@@ -22,7 +23,7 @@ bool Parser::is_request_valid(const std::size_t size) {
     return size == 2;
 }
 
-ResourceMethod Parser::determine_method(const std::string &s) {
+ResourceMethod Parser::determine_method(const std::string& s) {
     if (s == "AUTH|LOGIN") return AUTH_LOGIN;
     if (s == "T|GET_ALL") return T_GET_ALL;
     if (s == "T|CREATE") return T_CREATE;
@@ -34,10 +35,10 @@ ResourceMethod Parser::determine_method(const std::string &s) {
     throw parser_error("Method unknown");
 }
 
-nlohmann::json Parser::parse_json(const std::string &s) {
+nlohmann::json Parser::parse_json(const std::string& s) {
     try {
         return nlohmann::json::parse(s);
-    } catch (const nlohmann::json::parse_error &e) {
+    } catch (const nlohmann::json::parse_error& e) {
         throw parser_error("Invalid request body");
     }
 }
@@ -47,7 +48,7 @@ nlohmann::json Parser::parse_json(const std::string &s) {
 *   Method from ResourceMethod
 *   Data in valid JSON
 */
-ParserOutput Parser::process_request(const std::string &data) {
+ParserOutput Parser::process_request(const std::string& data) {
     const auto lines = split(data, "\n");
 
     if (!is_request_valid(lines.size())) {
@@ -62,6 +63,6 @@ ParserOutput Parser::process_request(const std::string &data) {
     return output;
 }
 
-std::vector<std::string> Parser::process_buffer(const std::string &buffer) {
+std::vector<std::string> Parser::process_buffer(const std::string& buffer) {
     return split(buffer, "\n\n");
 }
