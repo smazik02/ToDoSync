@@ -2,8 +2,7 @@
 #define VALIDATOR_HPP
 
 #include <json.hpp>
-
-#include "../types.hpp"
+#include <TDS/types.hpp>
 
 class Validator {
 public:

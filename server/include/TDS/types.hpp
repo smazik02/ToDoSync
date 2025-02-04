@@ -1,14 +1,12 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include <sys/socket.h>
-
-#include <memory>
-#include <string>
 #include <queue>
 #include <unordered_set>
 
-#include "../include/json.hpp"
+#include <sys/socket.h>
+
+#include <json.hpp>
 
 // -= Resources =-
 struct Task {

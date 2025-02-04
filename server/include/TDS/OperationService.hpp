@@ -1,10 +1,10 @@
 #ifndef OPERATIONSERVICE_HPP
 #define OPERATIONSERVICE_HPP
+
+#include <memory>
+
 #include <json.hpp>
-
-#include "../types.hpp"
-#include "../repository/Repository.hpp"
-
+#include <TDS/Repository.hpp>
 
 class OperationService {
     std::shared_ptr<Repository> repository_;

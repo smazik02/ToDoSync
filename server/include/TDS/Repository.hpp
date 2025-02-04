@@ -1,8 +1,14 @@
 #ifndef REPOSITORY_HPP
 #define REPOSITORY_HPP
 
-#include "../types.hpp"
+#include <memory>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
+#include <TDS/types.hpp>
 
 class Repository {
     int task_sequence = 0;

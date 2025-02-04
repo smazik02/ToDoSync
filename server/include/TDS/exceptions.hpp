@@ -1,9 +1,7 @@
 #ifndef EXCEPTIONS_HPP
 #define EXCEPTIONS_HPP
 
-#include <exception>
 #include <json.hpp>
-#include <utility>
 
 class server_error final : public std::exception {
     const char* message;

@@ -1,12 +1,13 @@
-#include <csignal>
-#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
 
-#include "exceptions.hpp"
-#include "server/Server.hpp"
+#include "../include/TDS/exceptions.hpp"
+#include "../include/TDS/Server.hpp"
 
 int main(const int argc, char* argv[]) {
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <port>\n", argv[0]);
+        std::fprintf(stderr, "Usage: %s <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 

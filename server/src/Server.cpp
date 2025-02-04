@@ -1,13 +1,11 @@
-#include <netdb.h>
-#include <unistd.h>
-
-#include "Server.hpp"
+#include <TDS/Server.hpp>
 
 #include <iostream>
-#include <ranges>
 
-#include "../exceptions.hpp"
-#include "../types.hpp"
+#include <netdb.h>
+
+#include <TDS/exceptions.hpp>
+#include <TDS/Parser.hpp>
 
 Server::Server(const int port): repository_(std::make_shared<Repository>()),
                                 operation_service_(

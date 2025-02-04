@@ -1,7 +1,11 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-#include "../types.hpp"
+#include <string>
+#include <vector>
+
+#include <json.hpp>
+#include <TDS/types.hpp>
 
 class Parser {
     static std::vector<std::string> split(const std::string& s,

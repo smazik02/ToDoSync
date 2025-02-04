@@ -1,9 +1,8 @@
-#include "OperationService.hpp"
+#include <TDS/OperationService.hpp>
 
-#include <utility>
-
-#include "../validator/Validator.hpp"
-#include "../exceptions.hpp"
+#include <TDS/exceptions.hpp>
+#include <TDS/types.hpp>
+#include <TDS/Validator.hpp>
 
 OperationService::OperationService(std::shared_ptr<Repository> repository) {
     repository_ = std::move(repository);

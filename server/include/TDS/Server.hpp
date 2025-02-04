@@ -1,13 +1,15 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <arpa/inet.h>
-#include <sys/epoll.h>
-#include <sys/socket.h>
+#include <memory>
+#include <unordered_map>
 
-#include "../types.hpp"
-#include "../operation_service/OperationService.hpp"
-#include "../repository/Repository.hpp"
+#include <sys/epoll.h>
+#include <arpa/inet.h>
+
+#include <TDS/OperationService.hpp>
+#include <TDS/Repository.hpp>
+#include <TDS/types.hpp>
 
 class Server {
     std::shared_ptr<Repository> repository_;

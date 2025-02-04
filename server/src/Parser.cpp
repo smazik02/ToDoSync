@@ -1,7 +1,6 @@
-#include "Parser.hpp"
+#include <TDS/Parser.hpp>
 
-#include "../exceptions.hpp"
-#include "../types.hpp"
+#include <TDS/exceptions.hpp>
 
 std::vector<std::string> Parser::split(const std::string& s,
                                        const std::string& delimiter) {
